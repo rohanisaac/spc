@@ -18,6 +18,8 @@ References
 [1] Galactic Universal Data Format Specification 9/4/97, SPC.H
 http://ftirsearch.com/features/converters/SPCFileFormat.htm
 """
+
+# need to functionalize 
 from __future__ import division
 import struct
 import numpy as np 
