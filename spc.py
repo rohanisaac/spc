@@ -58,7 +58,6 @@ class File:
     # --------------------------------------------
     # calculate size of strings using `struct.calcsize(string)`
     head_str = "<cccciddicccci9s9sh32s130s30siicchf48sfifc187s"
-    subhead_str = "<cchfffiif4s"
     old_head_str = "<ccifffccicccc8sii28s130s30s32s"
     
     # byte positon of various parts of the file
@@ -72,7 +71,7 @@ class File:
     # --------------------------------------------
     
     def __init__(self, filename):
-        # pretty much everything will be in the constructor
+        # most of the important stuff will be in the constructor
         
         #--------------------------
         # load file
@@ -83,16 +82,10 @@ class File:
         #--------------------------
         # unpack header
         #--------------------------
-            
-        """
-         header string format (c: char, i: int, d: double, f:float, 
-         10s: 10 character string; sizes: 1,4,8,4,10 respectively )
-         
-         use little-endian format with standard sizes 
-         (hopefully doesn't vary across platforms, should check)
-        """
         
-        # Unpack header (using naming scheme in SPC.H header file)
+        # use little-endian format with standard sizes 
+        # use naming scheme in SPC.H header file
+        
         self.ftflg, \
             self.fversn, \
             self.fexper, \
@@ -131,16 +124,102 @@ class File:
         #--------------------------
             
         self.tsprec, \
-        self.tcgram, \
-        self.tmulti, \
-        self.trandm, \
-        self.tordrd, \
-        self.talabs, \
-        self.txyxys, \
-        self.txvals = self.flag_bits(self.ftflg)[::-1]
+            self.tcgram, \
+            self.tmulti, \
+            self.trandm, \
+            self.tordrd, \
+            self.talabs, \
+            self.txyxys, \
+            self.txvals = self.flag_bits(self.ftflg)[::-1]
+            
+        
+        #--------------------------
+        # fix data types if necessary
+        #--------------------------
+        
+        self.fnpts = int(self.fnpts)
+        self.ffirst = int(self.ffirst)
+        self.flast = int(self.flast)
+             
+        #--------------------------
+        # spacing between data
+        #--------------------------
+
+        self.pr_spacing = (self.flast-self.ffirst)/(self.fnpts-1)
+
         
 
         
+        #--------------------------
+        # loop over subfiles
+        #--------------------------
+        
+        self.sub = []
+        for i in range(self.fnsub):
+            self.sub.append(subFile(content[:],self.pr_spacing))
+        
+        
+        #--------------------------
+        # find column headers
+        #--------------------------    
+        
+        if self.talabs:
+            # if supposed to use fcatxt, split it based on 00 string and only use the 
+            # first elements to get the x and y labels
+            [self.xl, self.yl] =  self.fcatxt.split('\x00')[:2]
+        else:
+            [self.xl, self.yl] = [self.xlabel,self.ylabel]
+        print self.xl, "\t", self.yl
+        for i in range(self.PTS):
+            print self.x_values[i], "\t", self.y_values_int[i]
+            #, y_values[i]
+        
+        
+
+        #--------------------------
+        # import metadata
+        #--------------------------   
+        
+        # Optional metadata, check if it exists first 
+        metastr = '[SCAN PARAM]\r\n'
+        metapos = content.find(metastr)
+        if metapos != -1:
+            metadata = content[metapos+len(metastr):]
+            metalst = metadata.split('\r\n')
+            keylst = []
+            vallst = []
+            for x in metalst[1:-1]:
+                [key,val] = x.split('=')
+                keylst.append(key)
+                vallst.append(val)
+            
+            self.metadict = dict(zip(keylst,vallst))
+    
+
+        
+
+            
+    def interpret(self):
+        """ Interpret flags and header information and extract useful data """
+        
+        # Flag bits
+        if self.tsprec:
+            print "16-bit y data"
+        if self.tcgram:
+            print "enable fexper"
+        if self.tmulti:
+            print "multiple traces"
+        if self.trandm:
+            print "arb time (z) values"
+        if self.tordrd:
+            print "ordered but uneven subtimes"
+        if self.talabs:
+            print "use fcatxt axis not fxtype"
+        if self.txyxys:
+            print "each subfile has own x's"
+        if self.txvals:
+            print "floating x-value array preceeds y's"
+            
         #--------------------------
         # spc format version
         #--------------------------
@@ -154,6 +233,10 @@ class File:
             self.pr_versn = "old format (unsupported)"
         else:
             self.pr_versn = "unknown version"
+            
+        
+        
+
             
         #--------------------------
         # experiment type
@@ -174,7 +257,7 @@ class File:
             "Chromatography Diode Array Spectra"]
              
         self.pr_exp_type = fexper_op[ord(self.fexper)]
-        
+
         #--------------------------
         # subfiles or not
         #--------------------------
@@ -268,18 +351,11 @@ class File:
         elif fytype_ord > 127 and fytype_ord < 132:
             self.ylabel = fytype_op2[fytype_ord - 128]
         else:
-            self.ylabel = "Unknown"    
-             
-        #--------------------------
-        # spacing between data
-        #--------------------------
-        self.PTS = int(self.fnpts)
-        self.FIRST = int(self.ffirst)
-        self.LAST = int(self.flast)
-        self.SPACING = (self.LAST-self.FIRST)/(self.PTS-1)
-        print "There are ", self.PTS, " points between ", self.FIRST, \
-            " and ", self.LAST, " in steps of ", self.SPACING 
-        
+            self.ylabel = "Unknown"   
+            
+        print "There are ", self.fnpts, " points between ", self.ffirst, \
+            " and ", self.flast, " in steps of ", self.pr_spacing
+            
         #--------------------------
         # file comment
         #--------------------------
@@ -287,119 +363,7 @@ class File:
         # is junk after that
         print str(self.fcmnt).split('\x00')[0]
         
-        #--------------------------
-        # loop over files
-        #--------------------------
         
-        for i in range(self.SUBFILES):
-            print i
-        
-        
-        #--------------------------
-        # decode subheader
-        #--------------------------
-        
-        
-        print "Size of sub", struct.calcsize(self.subhead_str)
-        subflgs, \
-            subexp, \
-            subindx, \
-            subtime, \
-            subnext, \
-            subnois, \
-            subnpts, \
-            subscan, \
-            subwlevel, \
-            subresv \
-            = struct.unpack(self.subhead_str, content[self.HEAD_POS:self.HEAD_POS+32])
-            
-        # do stuff if subflgs
-            # if 1 subfile changed
-            # if 8 if peak table should not be used
-            # if 128 if subfile modified by arithmetic
-        
-        #--------------------------
-        # decode x,y-data
-        #--------------------------
-        
-        # header + subheader + mumber of data points (int: 4 bytes)
-        # ONLY VALID FOR SINGLE SUBFILES !!! need to fix
-        self.DATA_POS = 512 + 32 + (self.PTS*4)
-        self.EXP = ord(self.fexp)
-        self.PTS = int(self.fnpts)
-        
-        # generate x-values (np.arange can't generate the correct amount of elements)
-        self.x_values = np.zeros(self.PTS)
-        for i in range(self.PTS):
-            self.x_values[i] = self.ffirst + (self.SPACING*i)
-            
-        # import the y-data and convert it
-        self.y_int = np.array(struct.unpack("i"*self.PTS,content[self.SUBHEAD_POS:self.DATA_POS]))
-        
-        # conversion string
-        self.y_values = (2**(self.EXP-32))*self.y_int
-        
-        # optionally integerize it
-        self.y_values_int = self.y_values.astype(int)
-            
-        
-        #--------------------------
-        # find column headers
-        #--------------------------    
-        
-        if self.talabs:
-            # if supposed to use fcatxt, split it based on 00 string and only use the 
-            # first elements to get the x and y labels
-            [self.xl, self.yl] =  self.fcatxt.split('\x00')[:2]
-        else:
-            [self.xl, self.yl] = [self.xlabel,self.ylabel]
-        print self.xl, "\t", self.yl
-        for i in range(self.PTS):
-            print self.x_values[i], "\t", self.y_values_int[i]
-            #, y_values[i]
-            continue
-        
-        
-
-        
-        # Optional metadata, check if it exists first 
-        metastr = '[SCAN PARAM]\r\n'
-        metapos = content.find(metastr)
-        if metapos != -1:
-            metadata = content[metapos+len(metastr):]
-            metalst = metadata.split('\r\n')
-            keylst = []
-            vallst = []
-            for x in metalst[1:-1]:
-                [key,val] = x.split('=')
-                keylst.append(key)
-                vallst.append(val)
-                continue
-            
-            self.metadict = dict(zip(keylst,vallst))
-            
-    def interpret(self):
-        """ Interpret flags and header information and extract useful data """
-        
-        # Flag bits
-        if self.tsprec:
-            print "16-bit y data"
-        if self.tcgram:
-            print "enable fexper"
-        if self.tmulti:
-            print "multiple traces"
-        if self.trandm:
-            print "arb time (z) values"
-        if self.tordrd:
-            print "ordered but uneven subtimes"
-        if self.talabs:
-            print "use fcatxt axis not fxtype"
-        if self.txyxys:
-            print "each subfile has own x's"
-        if self.txvals:
-            print "floating x-value array preceeds y's"
-            
-
                 
     def print_metadata(self):
         """ Print out all the metadata"""
@@ -438,13 +402,66 @@ class File:
         [False, True, False, False, False, False, False, True]
         """
         return [x == '1' for x in list('{0:08b}'.format(ord(n)))]   
+        
+    
+            
+
     
 class subFile:
     """ 
     Processes each subfile passed to it, extracts header information and data
     information and places them in data members
     """
+    subhead_str = "<cchfffiif4s"
+    subhead_siz = 32
     
-    def __init__(self):
-        print "Help me"
-    
+    def __init__(self,data,spacing):
+        #--------------------------
+        # decode subheader
+        #--------------------------
+        
+        subflgs, \
+            subexp, \
+            subindx, \
+            subtime, \
+            subnext, \
+            subnois, \
+            subnpts, \
+            subscan, \
+            subwlevel, \
+            subresv \
+            = struct.unpack(self.subhead_str, data[:self.subhead_siz])
+            
+        self.pr_spacing = spacing
+            
+            
+        # do stuff if subflgs
+        # if 1 subfile changed
+        # if 8 if peak table should not be used
+        # if 128 if subfile modified by arithmetic
+        
+        #--------------------------
+        # decode x,y-data
+        #--------------------------
+        
+        # header + subheader + mumber of data points (int: 4 bytes)
+        # ONLY VALID FOR SINGLE SUBFILES !!! need to fix
+        self.DATA_POS = 512 + 32 + (self.PTS*4)
+        self.EXP = ord(self.fexp)
+        self.PTS = int(self.fnpts)
+        
+        # generate x-values (np.arange can't generate the correct amount of elements)
+        self.x_values = np.zeros(self.PTS)
+        for i in range(self.PTS):
+            self.x_values[i] = self.ffirst + (self.SPACING*i)
+            
+        # import the y-data and convert it
+        self.y_int = np.array(struct.unpack("i"*self.PTS,data[self.subhead_siz:]))
+        
+        # conversion string
+        self.y_values = (2**(self.EXP-32))*self.y_int
+        
+        # optionally integerize it
+        self.y_values_int = self.y_values.astype(int)
+            
+        
