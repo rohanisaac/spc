@@ -35,7 +35,7 @@ Plan for the future
 from __future__ import division
 import struct
 import numpy as np 
-# import binascii as ba
+#import binascii as ba
 import matplotlib.pyplot as plt
 
 class File:
