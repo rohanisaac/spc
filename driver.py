@@ -5,3 +5,8 @@
 Driver function for spc file
 """
 
+import spc
+
+ftest = spc.File('Data/HENE25.SPC')
+print ftest.x_values
+print dir(ftest)
