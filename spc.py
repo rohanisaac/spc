@@ -47,7 +47,7 @@ class File:
     - For each subfile
         + sub file header info extracted
         + data for all axes (generated or read)
-            
+        
     Examples
     --------
     >>> import spc
