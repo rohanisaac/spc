@@ -17,6 +17,18 @@ References
 ----------
 [1] Galactic Universal Data Format Specification 9/4/97, SPC.H
 http://ftirsearch.com/features/converters/SPCFileFormat.htm
+
+
+---
+Plan for the future
+-------------------
+
+-Comletely seperate assigning the data to variables to processing the data
+-Loop over the subfile data
+-Send each subfile to a new object (subFile)
+-Subfile decodes the header and the data for each subfile
+
+
 """
 
 # need to functionalize 
@@ -29,11 +41,12 @@ import matplotlib.pyplot as plt
 class File:
     """ 
     Stores all the attributes of a spectral file, including:
-        - Full raw data
-        - Extracted header file data
-        - For each subfile
-            + sub file header info extracted
-            + data for all axes (generated or read)
+    
+    - Full raw data
+    - Extracted header file data
+    - For each subfile
+        + sub file header info extracted
+        + data for all axes (generated or read)
             
     Examples
     --------
@@ -41,14 +54,22 @@ class File:
     >>> ftir_1 = spc.File('/path/to/ftir.spc')
     """
     
-    format_str = "<cccciddicccci9s9sh32s130s30siicchf48sfifc187s"
-    subheader_str = "<cchfffiif4s"
-    # if need to check size of above string
-    # struct.calcsize(format_str)
+    # Format strings for various parts of the file
+    # --------------------------------------------
+    # calculate size of strings using `struct.calcsize(string)`
+    head_str = "<cccciddicccci9s9sh32s130s30siicchf48sfifc187s"
+    subhead_str = "<cchfffiif4s"
+    old_head_str = "<ccifffccicccc8sii28s130s30s32s"
     
     # byte positon of various parts of the file
+    # --------------------------------------------
+    head_siz = 512
+    subhead_siz = 32
+    
     HEAD_POS = 512
     SUBHEAD_POS = 544
+    
+    # --------------------------------------------
     
     def __init__(self, filename):
         # pretty much everything will be in the constructor
@@ -103,7 +124,7 @@ class File:
             self.fwinc, \
             self.fwtype, \
             self.freserv \
-            = struct.unpack(self.format_str, content[:self.HEAD_POS])
+            = struct.unpack(self.head_str, content[:self.head_siz])
             
         #--------------------------
         # Flag bits
@@ -118,39 +139,21 @@ class File:
         self.txyxys, \
         self.txvals = self.flag_bits(self.ftflg)[::-1]
         
-        if self.tsprec:
-            print "16-bit y data"
-        if self.tcgram:
-            print "enable fexper"
-        if self.tmulti:
-            print "multiple traces"
-        if self.trandm:
-            print "arb time (z) values"
-        if self.tordrd:
-            print "ordered but uneven subtimes"
-        if self.talabs:
-            print "use fcatxt axis not fxtype"
-        if self.txyxys:
-            print "each subfile has own x's"
-        if self.txvals:
-            print "floating x-value array preceeds y's"
+
         
         #--------------------------
         # spc format version
         #--------------------------
         
-        if self.fversn == ba.unhexlify('4b'):
-            print "new LSB 1st"
-        elif self.fversn == ba.unhexlify('4c'):
-            print "new MSB 1st"
-        elif self.fversn == ba.unhexlify('4d'):
-            print "old format (unsupported)"
-            
-            # beginnings of an implementation
-            old_format_str = "<ccifffccicccc8sii28s130s30s32s"
-            print struct.calcsize(old_format_str)
+        
+        if self.fversn == '\0x4b':
+            self.pr_versn = "new LSB 1st"
+        elif self.fversn == '\0x4c':
+            self.pr_versn = "new MSB 1st"
+        elif self.fversn == '\0x4d':
+            self.pr_versn = "old format (unsupported)"
         else:
-            print "unknown version"
+            self.pr_versn = "unknown version"
             
         #--------------------------
         # experiment type
@@ -170,8 +173,7 @@ class File:
             "Atomic Spectrum", \
             "Chromatography Diode Array Spectra"]
              
-        EXP_TYPE = fexper_op[ord(self.fexper)]
-        print EXP_TYPE
+        self.pr_exp_type = fexper_op[ord(self.fexper)]
         
         #--------------------------
         # subfiles or not
@@ -298,7 +300,7 @@ class File:
         #--------------------------
         
         
-        print "Size of sub", struct.calcsize(self.subheader_str)
+        print "Size of sub", struct.calcsize(self.subhead_str)
         subflgs, \
             subexp, \
             subindx, \
@@ -309,7 +311,7 @@ class File:
             subscan, \
             subwlevel, \
             subresv \
-            = struct.unpack(self.subheader_str, content[self.HEAD_POS:self.HEAD_POS+32])
+            = struct.unpack(self.subhead_str, content[self.HEAD_POS:self.HEAD_POS+32])
             
         # do stuff if subflgs
             # if 1 subfile changed
@@ -376,6 +378,27 @@ class File:
             
             self.metadict = dict(zip(keylst,vallst))
             
+    def interpret(self):
+        """ Interpret flags and header information and extract useful data """
+        
+        # Flag bits
+        if self.tsprec:
+            print "16-bit y data"
+        if self.tcgram:
+            print "enable fexper"
+        if self.tmulti:
+            print "multiple traces"
+        if self.trandm:
+            print "arb time (z) values"
+        if self.tordrd:
+            print "ordered but uneven subtimes"
+        if self.talabs:
+            print "use fcatxt axis not fxtype"
+        if self.txyxys:
+            print "each subfile has own x's"
+        if self.txvals:
+            print "floating x-value array preceeds y's"
+            
 
                 
     def print_metadata(self):
@@ -415,4 +438,13 @@ class File:
         [False, True, False, False, False, False, False, True]
         """
         return [x == '1' for x in list('{0:08b}'.format(ord(n)))]   
+    
+class subFile:
+    """ 
+    Processes each subfile passed to it, extracts header information and data
+    information and places them in data members
+    """
+    
+    def __init__(self):
+        print "Help me"
     
