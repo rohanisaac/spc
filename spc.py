@@ -206,20 +206,23 @@ class File:
             #print "log stuff", self.logsizd, self.logsizm
             log_end_pos = log_pos + self.logsizd
             self.log_content = content[log_pos:log_end_pos].split('\r\n')
-            
+            print self.log_content
             # split log data into dictionary
             self.log_dict = dict()
+            self.log_other = [] # put the rest into a list
             for x in self.log_content:
                 if x.find('=') >= 0:
                     key, value = x.split('=')
                     self.log_dict[key] = value
-             
-        
-        #--------------------------
-        # spacing between data
-        #--------------------------
+                else:
+                    self.log_other.append(x)
 
+        # spacing between data
         self.pr_spacing = (self.flast-self.ffirst)/(self.fnpts-1)
+        
+        # call functions
+        self.set_labels()
+        self.set_exp_type()
         
 
     # ------------------------------------------------------------------------
@@ -330,10 +333,7 @@ class File:
         # format x, y, z
         if self.talabs:
             [self.pr_xlabel, self.pr_ylabel, self.pr_zlabel] =  self.fcatxt.split('\x00')[:3]
-        
-
-
-        
+ 
     def set_exp_type(self):
         """ Set the experiment type """
         
@@ -353,38 +353,29 @@ class File:
             "Chromatography Diode Array Spectra"]
              
         self.pr_exp_type = fexper_op[self.fexper]
-        
-        
+      
     # ------------------------------------------------------------------------
     # output 
     # ------------------------------------------------------------------------
     def output_txt(self):
         """ Output data as plain text, can feed to file later """
         print self.pr_xlabel, "\t", self.pr_ylabel
-        
-        
         for i in range(self.fnpts):
             print self.x[i], "\t", self.dat.y[i]
-            #, y_values[i]
-            
-        
-                
+           
     def print_metadata(self):
-        """ Print out all the metadata"""
+        """ Print out select metadata"""
         print "Scan: ", self.metadict['Comment'], "\n", \
             float(self.metadict['Start']), "to ", \
             float(self.metadict['End']), "; ", \
             float(self.metadict['Increment']), "cm-1;", \
             float(self.metadict['Integration Time']), "s integration time"
-    
-                
+       
     def plot(self):
-        """ Plots data using col headers"""
-
-        plt.plot(self.x_values,self.y_values)
-        plt.xlabel(self.xl)
-        plt.ylabel(self.yl)
-
+        """ Plots data, and use column headers"""
+        plt.plot(self.x,self.dat.y)
+        plt.xlabel(self.pr_xlabel)
+        plt.ylabel(self.pr_ylabel)
 
             
     def debug_info(self):
@@ -457,9 +448,4 @@ class File:
         [False, True, False, False, False, False, False, True]
         """
         return [x == '1' for x in list('{0:08b}'.format(ord(n)))]   
-        
-    
-            
-
-    
 

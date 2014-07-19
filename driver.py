@@ -7,17 +7,15 @@ Driver function for spc file
 
 import spc
 
-ftest = spc.File('Data/HENE25.SPC')
-#print ftest.x_values
-for i in dir(ftest):
-    print i
-#print ftest.metadict
+ftest = spc.File('Data/raman.SPC')
     
-print ftest.dat.y
-print ftest.x
+ftest.debug_info()
 
-print len(ftest.dat.y)
 
-print len(ftest.x)
+logdat = ftest.log_dict
+logcont = ftest.log_other
+print ftest.log_content
 
-print ftest.log_dict
+ftest.output_txt()
+
+ftest.plot()
