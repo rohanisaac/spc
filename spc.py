@@ -6,6 +6,8 @@ Notes
 -----
 + Used format specificiton [1]
 + Loads entire file into memory
++ Data uses variable naming as in SPC.H
++ Class variables not in SPC.H prefixed with pr_
 
 To be implemented
 -----------------
@@ -54,12 +56,12 @@ Plan for the future
 
 """
 
-# need to functionalize 
 from __future__ import division
 import struct
 import numpy as np 
-#import binascii as ba
 import matplotlib.pyplot as plt
+
+from sub import subFile
 
 class File:
     """ 
@@ -78,39 +80,31 @@ class File:
     """
     
     # Format strings for various parts of the file
-    # --------------------------------------------
     # calculate size of strings using `struct.calcsize(string)`
     head_str = "<cccciddicccci9s9sh32s130s30siicchf48sfifc187s"
-    #old_head_str = "<ccifffccicccc8sii28s130s30s32s"
-    logstc_str = "<iiiii44s"
-    print "Size of struct lgo" , struct.calcsize(logstc_str)    
+    old_head_str = "<ccifffccicccc8sii28s130s30s32s"
+    logstc_str = "<iiiii44s" 
     
     # byte positon of various parts of the file
-    # --------------------------------------------
     head_siz = 512
     subhead_siz = 32
     log_siz = 64
     
     subhead1_pos = head_siz + subhead_siz
     
-    # --------------------------------------------
+    # ------------------------------------------------------------------------
+    # CONSTRUCTOR
+    # ------------------------------------------------------------------------
     
     def __init__(self, filename):
-        # most of the important stuff will be in the constructor
-        
-        #--------------------------
         # load file
-        #--------------------------
         with open(filename, "rb") as fin:
             content = fin.read()
             
-        #--------------------------
-        # unpack header
-        #--------------------------
-        
+        # unpack header  
+        # -------------
         # use little-endian format with standard sizes 
         # use naming scheme in SPC.H header file
-        
         self.ftflg, \
             self.fversn, \
             self.fexper, \
@@ -143,11 +137,8 @@ class File:
             self.fwtype, \
             self.freserv \
             = struct.unpack(self.head_str, content[:self.head_siz])
-            
-        #--------------------------
+
         # Flag bits
-        #--------------------------
-            
         self.tsprec, \
             self.tcgram, \
             self.tmulti, \
@@ -156,11 +147,8 @@ class File:
             self.talabs, \
             self.txyxys, \
             self.txvals = self.flag_bits(self.ftflg)[::-1]
-            
-        
-        #--------------------------
+
         # fix data types if necessary
-        #--------------------------
         
         self.fnpts = int(self.fnpts)
         self.fexp = ord(self.fexp)
@@ -174,9 +162,13 @@ class File:
         self.fytype = ord(self.fytype)
         self.fztype = ord(self.fztype)
         
-        #--------------------------
+        self.fexper = ord(self.fexper)
+        
+        # null terminated string
+        self.fcmnt = str(self.fcmnt).split('\x00')[0]
+
         # options
-        #--------------------------            
+        # -------            
         
         # optional floating point x-values
         if self.txvals: 
@@ -229,31 +221,10 @@ class File:
 
         self.pr_spacing = (self.flast-self.ffirst)/(self.fnpts-1)
         
-        
-    def process_log(self):
-        """ Process log data, split into log dict """
 
-        
-        
-
-        #--------------------------
-        # import metadata
-        #--------------------------   
-        
-#        # Optional metadata, check if it exists first 
-#        metastr = '[SCAN PARAM]\r\n'
-#        metapos = content.find(metastr)
-#        if metapos != -1:
-#            metadata = content[metapos+len(metastr):]
-#            metalst = metadata.split('\r\n')
-#            keylst = []
-#            vallst = []
-#            for x in metalst[1:-1]:
-#                [key,val] = x.split('=')
-#                keylst.append(key)
-#                vallst.append(val)
-#            
-#            self.metadict = dict(zip(keylst,vallst))
+    # ------------------------------------------------------------------------
+    # Process other data
+    # ------------------------------------------------------------------------
     
     def set_labels(self):
         """ 
@@ -351,8 +322,6 @@ class File:
         else:
             self.pr_ylabel = "Unknown"   
             
-
-            
         #--------------------------
         # check if labels are included as text
         #--------------------------    
@@ -363,10 +332,65 @@ class File:
             [self.pr_xlabel, self.pr_ylabel, self.pr_zlabel] =  self.fcatxt.split('\x00')[:3]
         
 
+
+        
+    def set_exp_type(self):
+        """ Set the experiment type """
+        
+        fexper_op = ["General SPC", \
+            "Gas Chromatogram", \
+            "General Chromatogram", \
+            "HPLC Chromatogram", \
+            "FT-IR, FT-NIR, FT-Raman Spectrum or Igram",\
+            "NIR Spectrum", \
+            "UV-VIS Spectrum", \
+            "X-ray Diffraction Spectrum", \
+            "Mass Spectrum ", \
+            "NMR Spectrum or FID", \
+            "Raman Spectrum",\
+            "Fluorescence Spectrum", \
+            "Atomic Spectrum", \
+            "Chromatography Diode Array Spectra"]
+             
+        self.pr_exp_type = fexper_op[self.fexper]
+        
+        
+    # ------------------------------------------------------------------------
+    # output 
+    # ------------------------------------------------------------------------
+    def output_txt(self):
+        """ Output data as plain text, can feed to file later """
+        print self.pr_xlabel, "\t", self.pr_ylabel
+        
+        
+        for i in range(self.fnpts):
+            print self.x[i], "\t", self.dat.y[i]
+            #, y_values[i]
             
-    def interpret(self):
+        
+                
+    def print_metadata(self):
+        """ Print out all the metadata"""
+        print "Scan: ", self.metadict['Comment'], "\n", \
+            float(self.metadict['Start']), "to ", \
+            float(self.metadict['End']), "; ", \
+            float(self.metadict['Increment']), "cm-1;", \
+            float(self.metadict['Integration Time']), "s integration time"
+    
+                
+    def plot(self):
+        """ Plots data using col headers"""
+
+        plt.plot(self.x_values,self.y_values)
+        plt.xlabel(self.xl)
+        plt.ylabel(self.yl)
+
+
+            
+    def debug_info(self):
         """ 
-        Interpret flags and header information and extract useful data 
+        Interpret flags and header information to debug more about the file 
+        format
         """
         
         # Flag bits
@@ -386,12 +410,8 @@ class File:
             print "each subfile has own x's"
         if self.txvals:
             print "floating x-value array preceeds y's"
-            
-        #--------------------------
-        # spc format version
-        #--------------------------
         
-        
+        # spc format version        
         if self.fversn == '\0x4b':
             self.pr_versn = "new LSB 1st"
         elif self.fversn == '\0x4c':
@@ -401,77 +421,21 @@ class File:
         else:
             self.pr_versn = "unknown version"
             
-        
-        
-
-            
-        #--------------------------
-        # experiment type
-        #--------------------------
-        fexper_op = ["General SPC", \
-            "Gas Chromatogram", \
-            "General Chromatogram", \
-            "HPLC Chromatogram", \
-            "FT-IR, FT-NIR, FT-Raman Spectrum or Igram",\
-            "NIR Spectrum", \
-            "UV-VIS Spectrum", \
-            "X-ray Diffraction Spectrum", \
-            "Mass Spectrum ", \
-            "NMR Spectrum or FID", \
-            "Raman Spectrum",\
-            "Fluorescence Spectrum", \
-            "Atomic Spectrum", \
-            "Chromatography Diode Array Spectra"]
-             
-        self.pr_exp_type = fexper_op[ord(self.fexper)]
-
-        #--------------------------
-        # subfiles or not
-        #--------------------------
-        self.SUBFILES = int(self.fnsub)
-        if self.SUBFILES == 1:
+        # subfiles
+        if self.fnsub == 1:
             print "Single file only" 
         else:
-            print "Multiple subfiles"
+            print "Multiple subfiles:", self.fnsub
             
             
-        print "There are ", self.fnpts, " points between ", self.ffirst, \
-            " and ", self.flast, " in steps of ", self.pr_spacing
-        
+        print "There are ", self.fnpts, \
+            " points between ", self.ffirst, \
+            " and ", self.flast, \
+            " in steps of ", self.pr_spacing
             
-        #--------------------------
-        # file comment
-        #--------------------------
-        # only need the first part of the string. some test files seem that there
-        # is junk after that
-        print str(self.fcmnt).split('\x00')[0]
-        
-    def output_txt(self):
-        """ Output data as plain text, can feed to file later """
-        print self.pr_xlabel, "\t", self.pr_ylabel
-        
-        
-        for i in range(self.fnpts):
-            print self.x[i], "\t", self.dat.y[i]
-            #, y_values[i]
-        
-                
-    def print_metadata(self):
-        """ Print out all the metadata"""
-        print "Scan: ", self.metadict['Comment'], "\n", \
-            float(self.metadict['Start']), "to ", \
-            float(self.metadict['End']), "; ", \
-            float(self.metadict['Increment']), "cm-1;", \
-            float(self.metadict['Integration Time']), "s integration time"
-    
-                
-    def plot(self):
-        """ Plots data using col headers"""
-
-        plt.plot(self.x_values,self.y_values)
-        plt.xlabel(self.xl)
-        plt.ylabel(self.yl)
-
+    # ------------------------------------------------------------------------
+    # helper functions
+    # ------------------------------------------------------------------------
 
         
     # write better version, perhaps include in main code upate docs on top
@@ -498,71 +462,4 @@ class File:
             
 
     
-class subFile:
-    """ 
-    Processes each subfile passed to it, extracts header information and data
-    information and places them in data members
-    """
-    subhead_str = "<cchfffiif4s"
-    subhead_siz = 32
-    
-    def __init__(self, data, fnpts, fexp):
-        #--------------------------
-        # decode subheader
-        #--------------------------
-        
-        subflgs, \
-            subexp, \
-            subindx, \
-            subtime, \
-            subnext, \
-            subnois, \
-            subnpts, \
-            subscan, \
-            subwlevel, \
-            subresv \
-            = struct.unpack(self.subhead_str, data[:self.subhead_siz])
-            
-        #--------------------------
-        # extract y_data
-        #--------------------------
-            
-        y_dat_str = 'i'*fnpts
-        y_raw = np.array(struct.unpack(y_dat_str, data[32:]))
-        
-        self.y = (2**(fexp-32))*y_raw
-            
-            
-        #self.pr_spacing = spacing
-            
-            
-        # do stuff if subflgs
-        # if 1 subfile changed
-        # if 8 if peak table should not be used
-        # if 128 if subfile modified by arithmetic
-        
-        #--------------------------
-        # decode x,y-data
-        #--------------------------
-        
-        # header + subheader + mumber of data points (int: 4 bytes)
-        # ONLY VALID FOR SINGLE SUBFILES !!! need to fix
-#        self.DATA_POS = 512 + 32 + (self.PTS*4)
-#        self.EXP = ord(self.fexp)
-#        self.PTS = int(self.fnpts)
-#        
-#        # generate x-values (np.arange can't generate the correct amount of elements)
-#        self.x_values = np.zeros(self.PTS)
-#        for i in range(self.PTS):
-#            self.x_values[i] = self.ffirst + (self.SPACING*i)
-#            
-#        # import the y-data and convert it
-#        self.y_int = np.array(struct.unpack("i"*self.PTS,data[self.subhead_siz:]))
-#        
-#        # conversion string
-#        self.y_values = (2**(self.EXP-32))*self.y_int
-#        
-#        # optionally integerize it
-#        self.y_values_int = self.y_values.astype(int)
-            
-        
+
