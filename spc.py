@@ -188,25 +188,23 @@ class File:
         # multiple y values
         if self.tmulti: 
             print "Multiple y-values"
-            self.sub = []
-            sub_pos = self.head_siz
-            if self.txyxys:
-                sub_siz = self.subhead_siz + 8*self.fnpts
-            else:
-                sub_siz = self.subhead_siz + 4*self.fnpts
-                
-            sub_end = sub_pos + sub_siz
-            # to be implemented
-            for i in range(self.fnsub):
-                self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
-                sub_pos = sub_pos + sub_siz
-                sub_end = sub_end + sub_siz
-        else: # single y values
+        else:
             print "Single set of y-values"
-            y_dat_pos = self.head_siz
-            y_dat_pos_end = self.head_siz + self.subhead_siz + (4*self.fnpts)
-            # each data point is 4 bytes long
-            self.sub = subFile(content[y_dat_pos:y_dat_pos_end],self.fnpts,self.fexp,self.txyxys)
+            
+        # either ways do the same thing            
+        self.sub = []
+        sub_pos = self.head_siz
+        if self.txyxys:
+            sub_siz = self.subhead_siz + (8*self.fnpts)
+        else:
+            sub_siz = self.subhead_siz + (4*self.fnpts)
+            
+        sub_end = sub_pos + sub_siz
+        # to be implemented
+        for i in range(self.fnsub):
+            self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
+            sub_pos = sub_pos + sub_siz
+            sub_end = sub_end + sub_siz
             
         # flog offset to log data offset not zero (bytes)
         if self.flogoff: 
