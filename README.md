@@ -3,7 +3,7 @@ spc
 
 A module for working with .SPC files in Python. SPC is a binary data format to store a variety of spectroscopic data, developed by Thermo Scientific in the '90s. 
 
-Based mainly on the [Thermo Scientific SPC File SDK][1]
+Based mainly on the Thermo Scientific SPC File SDK [1]
 
 Dependencies
 ------------
@@ -40,6 +40,7 @@ Load a file:
 	# plot using matplotlib
 	ftir_1.plot()
 
-
-[1]: "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
+References
+----------
+.. [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. (http://ftirsearch.com/features/converters/SPCFileFormat.htm).
 
