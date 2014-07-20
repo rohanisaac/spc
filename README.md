@@ -8,14 +8,14 @@ Based mainly on the Thermo Scientific SPC File SDK [1]
 **Note: Still in development; not stable or accurate for most formats**
 
 Working
--------
+~~~~~~~
 1. Single y-set, generated x-values
 2. Log data
 3. Basic header information extraction
 4. x,y and z labels
 
 To Be implemented
------------------
+~~~~~~~~~~~~~~~~~
 1. Multiple y data sets
 2. z-values
 3. Separate x values
@@ -38,7 +38,7 @@ Module Organization
 	+ y
 	
 Examples
---------
+~~~~~~~~
 
 Load a file:
 
@@ -56,6 +56,6 @@ Load a file:
 	ftir_1.plot()
 
 References
-----------
+~~~~~~~~~~
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
 
