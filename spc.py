@@ -173,6 +173,14 @@ class File:
         # optional floating point x-values
         if self.txvals: 
             print "Seperate x-values"
+            if self.txyxys:
+                print "x-data in subfile"
+            else:
+                x_str = 'i'*self.fnpts
+                x_dat_pos = self.head_siz
+                x_dat_end = self.head_siz + (4*self.fnpts)
+                x_raw = np.array(struct.unpack(x_str, content[x_dat_pos:x_dat_end]))
+                self.x = (2**(self.fexp-32))*x_raw
         else:
             print "Generated x-values"
             self.x = np.linspace(self.ffirst,self.flast,num=self.fnpts)
@@ -181,15 +189,24 @@ class File:
         if self.tmulti: 
             print "Multiple y-values"
             self.sub = []
+            sub_pos = self.head_siz
+            if self.txyxys:
+                sub_siz = self.subhead_siz + 8*self.fnpts
+            else:
+                sub_siz = self.subhead_siz + 4*self.fnpts
+                
+            sub_end = sub_pos + sub_siz
             # to be implemented
-            #for i in range(self.fnsub):
-            #    self.sub.append(subFile(content[:],self.pr_spacing))   
+            for i in range(self.fnsub):
+                self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
+                sub_pos = sub_pos + sub_siz
+                sub_end = sub_end + sub_siz
         else: # single y values
             print "Single set of y-values"
             y_dat_pos = self.head_siz
             y_dat_pos_end = self.head_siz + self.subhead_siz + (4*self.fnpts)
             # each data point is 4 bytes long
-            self.dat = subFile(content[y_dat_pos:y_dat_pos_end],self.fnpts,self.fexp)
+            self.sub = subFile(content[y_dat_pos:y_dat_pos_end],self.fnpts,self.fexp,self.txyxys)
             
         # flog offset to log data offset not zero (bytes)
         if self.flogoff: 
@@ -360,8 +377,14 @@ class File:
     def output_txt(self):
         """ Output data as plain text, can feed to file later """
         print self.pr_xlabel, "\t", self.pr_ylabel
+        
+        if self.txyxys:
+            x = self.sub.x
+        else:
+            x = self.x
+        y = self.sub.y
         for i in range(self.fnpts):
-            print self.x[i], "\t", self.dat.y[i]
+            print x[i], "\t", y[i]
            
     def print_metadata(self):
         """ Print out select metadata"""
@@ -373,9 +396,21 @@ class File:
        
     def plot(self):
         """ Plots data, and use column headers"""
-        plt.plot(self.x,self.dat.y)
-        plt.xlabel(self.pr_xlabel)
-        plt.ylabel(self.pr_ylabel)
+        if self.tmulti:
+            ran = len(self.sub)
+            for i in range(ran):
+                plt.plot(self.x,self.sub[i].y)
+        else:
+            # single xy data
+            if self.txyxys:
+                x = self.sub.x
+            else:
+                x = self.x
+            y = self.sub.y
+            
+            plt.plot(x,y)
+            plt.xlabel(self.pr_xlabel)
+            plt.ylabel(self.pr_ylabel)
 
             
     def debug_info(self):
