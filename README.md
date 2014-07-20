@@ -42,5 +42,5 @@ Load a file:
 
 References
 ----------
-.. [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. (http://ftirsearch.com/features/converters/SPCFileFormat.htm).
+[1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
 
