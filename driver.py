@@ -7,7 +7,7 @@ Driver function for spc file
 
 import spc
 
-aaaa = spc.File('Data/nir.SPC')
+aaaa = spc.File('Data/s_evenx.SPC')
     
 aaaa.debug_info()
 
@@ -18,9 +18,10 @@ aaaa.debug_info()
 #logcont = ftest.log_other
 #print ftest.log_content
 
-#ftest.output_txt()
+#aaaa.output_txt()
 
 #print ftest.sub.x
 #print ftest.sub.y
 
 aaaa.plot()
+

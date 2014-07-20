@@ -8,43 +8,59 @@ from __future__ import division
 import struct
 import numpy as np
 
+from global_fun import read_subheader
+
 class subFile:
     """ 
     Processes each subfile passed to it, extracts header information and data
     information and places them in data members
     """
-    subhead_str = "<cchfffiif4s"
-    subhead_siz = 32
     
     def __init__(self, data, fnpts, fexp, txyxy):
-        #--------------------------
-        # decode subheader
-        #--------------------------
         
-        subflgs, \
-            subexp, \
-            subindx, \
-            subtime, \
-            subnext, \
-            subnois, \
-            subnpts, \
-            subscan, \
-            subwlevel, \
-            subresv \
-            = struct.unpack(self.subhead_str, data[:self.subhead_siz])
+        # extract subheader info
+        self.subflgs, \
+            self.subexp, \
+            self.subindx, \
+            self.subtime, \
+            self.subnext, \
+            self.subnois, \
+            self.subnpts, \
+            self.subscan, \
+            self.subwlevel, \
+            self.subresv \
+            = read_subheader(data[:32])
+        print read_subheader(data[:32])
+        y_dat_pos = 32
             
-        y_dat_pos = self.subhead_siz
+        print "Global pts", fnpts
+        print "Individual pts", self.subnpts
+        
+        # choose between global stuff and local stuff
+        if self.subnpts > 0:
+            pts = self.subnpts
+        else:
+            pts = fnpts
             
+        if self.subexp > 0:
+            exp = self.subexp
+        else:
+            exp = fexp
+            
+        print "exponent is ", exp, "or", 
+        print fexp
+        
         #--------------------------
         # if x_data present
         #--------------------------
             
         if txyxy:
-            x_str = 'i'*fnpts
+            x_str = 'i'*pts
+            print "Len of str", struct.calcsize(x_str)
             x_dat_pos = y_dat_pos
-            x_dat_end = x_dat_pos + (4*fnpts)
+            x_dat_end = x_dat_pos + (4*pts)
             x_raw = np.array(struct.unpack(x_str, data[x_dat_pos:x_dat_end]))
-            self.x = (2**(fexp-32))*x_raw
+            self.x = (2**(exp-32))*x_raw
             
             y_dat_pos = x_dat_end
         
@@ -52,11 +68,11 @@ class subFile:
         # extract y_data
         #--------------------------
             
-        y_dat_str = 'i'*fnpts
-        y_dat_end = y_dat_pos + (4*fnpts)
+        y_dat_str = 'i'*pts
+        y_dat_end = y_dat_pos + (4*pts)
         y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
         
-        self.y = (2**(fexp-32))*y_raw
+        self.y = (2**(exp-32))*y_raw
         self.y = self.y.astype(int)
             
         # do stuff if subflgs

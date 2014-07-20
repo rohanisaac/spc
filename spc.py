@@ -62,6 +62,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from sub import subFile
+from global_fun import read_subheader, flag_bits
 
 class File:
     """ 
@@ -146,7 +147,7 @@ class File:
             self.tordrd, \
             self.talabs, \
             self.txyxys, \
-            self.txvals = self.flag_bits(self.ftflg)[::-1]
+            self.txvals = flag_bits(self.ftflg)[::-1]
 
         # fix data types if necessary
         
@@ -168,7 +169,9 @@ class File:
         self.fcmnt = str(self.fcmnt).split('\x00')[0]
 
         # options
-        # -------            
+        # -------    
+
+        sub_pos = self.head_siz
         
         # optional floating point x-values
         if self.txvals: 
@@ -181,30 +184,42 @@ class File:
                 x_dat_end = self.head_siz + (4*self.fnpts)
                 x_raw = np.array(struct.unpack(x_str, content[x_dat_pos:x_dat_end]))
                 self.x = (2**(self.fexp-32))*x_raw
+                
+                sub_pos = x_dat_end
         else:
             print "Generated x-values"
             self.x = np.linspace(self.ffirst,self.flast,num=self.fnpts)
         
-        # multiple y values
-        if self.tmulti: 
-            print "Multiple y-values"
-        else:
-            print "Single set of y-values"
-            
-        # either ways do the same thing            
+        # make a list of subfiles          
         self.sub = []
-        sub_pos = self.head_siz
-        if self.txyxys:
-            sub_siz = self.subhead_siz + (8*self.fnpts)
-        else:
-            sub_siz = self.subhead_siz + (4*self.fnpts)
-            
-        sub_end = sub_pos + sub_siz
-        # to be implemented
+        
+        # for each subfile
         for i in range(self.fnsub):
+            print "start pos", sub_pos
+            # figure out its size
+            subhead_lst = read_subheader(content[sub_pos:(sub_pos+32)])
+            print subhead_lst
+            if subhead_lst[6] > 0:
+                pts = subhead_lst[6]
+            else:
+                pts = self.fnpts
+                
+            print "Points in subfile", pts
+                
+            if self.txyxys:
+                dat_siz = (8*pts) + 32
+            else:
+                dat_siz = (4*pts) + 32
+                
+            print "Data size", dat_siz
+                
+            sub_end = sub_pos + dat_siz
+            print "sub_end", sub_end
+            # read into object, add to list
             self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
-            sub_pos = sub_pos + sub_siz
-            sub_end = sub_end + sub_siz
+            print self.sub[i].y
+            # update positions
+            sub_pos = sub_end
             
         # flog offset to log data offset not zero (bytes)
         if self.flogoff: 
@@ -238,8 +253,9 @@ class File:
         # call functions
         self.set_labels()
         self.set_exp_type()
-        
 
+
+        
     # ------------------------------------------------------------------------
     # Process other data
     # ------------------------------------------------------------------------
@@ -393,7 +409,7 @@ class File:
             print x[i], "\t", 
             for j in range(self.fnsub):
                 print self.sub[j].y[i], "\t", 
-            print "\n"
+            print "\n",
         
     def print_metadata(self):
         """ Print out select metadata"""
@@ -453,34 +469,17 @@ class File:
         else:
             print "Multiple subfiles:", self.fnsub
             
+        # multiple y values
+        if self.tmulti: 
+            print "Multiple y-values"
+        else:
+            print "Single set of y-values"
+            
             
         print "There are ", self.fnpts, \
             " points between ", self.ffirst, \
             " and ", self.flast, \
             " in steps of ", self.pr_spacing
             
-    # ------------------------------------------------------------------------
-    # helper functions
-    # ------------------------------------------------------------------------
 
-        
-    # write better version, perhaps include in main code upate docs on top
-    def flag_bits(self, n):
-        """Return the bits of a byte as a boolean array:
-        
-        n (charater):
-            8-bit character passed
-        
-        Returns
-        -------    
-        list (bool):
-            boolean list representing the bits in the byte
-            (big endian) ['most sig bit', ... , 'least sig bit' ]
-            
-        Example
-        -------
-        >>> flag_bits('A') # ASCII 65, Binary: 01000001
-        [False, True, False, False, False, False, False, True]
-        """
-        return [x == '1' for x in list('{0:08b}'.format(ord(n)))]   
 
