@@ -7,9 +7,9 @@ Driver function for spc file
 
 import spc
 
-ftest = spc.File('Data/raman.SPC')
+aaaa = spc.File('Data/raman.SPC')
     
-ftest.debug_info()
+aaaa.debug_info()
 
 #print ftest.sub[0].y
 
@@ -23,4 +23,4 @@ ftest.debug_info()
 #print ftest.sub.x
 #print ftest.sub.y
 
-ftest.plot()
+aaaa.plot()

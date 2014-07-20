@@ -349,7 +349,15 @@ class File:
         # split it based on 00 string 
         # format x, y, z
         if self.talabs:
-            [self.pr_xlabel, self.pr_ylabel, self.pr_zlabel] =  self.fcatxt.split('\x00')[:3]
+            xl, yl, zl = self.fcatxt.split('\x00')[:3]
+            
+            # overwrite only if non zero
+            if len(xl) > 0:
+                self.pr_xlabel = xl
+            if len(yl) > 0:
+                self.pr_ylabel = yl
+            if len(zl) > 0:
+                self.pr_zlabel = zl 
  
     def set_exp_type(self):
         """ Set the experiment type """
