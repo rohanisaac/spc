@@ -388,10 +388,13 @@ class File:
             x = self.sub.x
         else:
             x = self.x
-        y = self.sub.y
+            
         for i in range(self.fnpts):
-            print x[i], "\t", y[i]
-           
+            print x[i], "\t", 
+            for j in range(self.fnsub):
+                print self.sub[j].y[i], "\t", 
+            print "\n"
+        
     def print_metadata(self):
         """ Print out select metadata"""
         print "Scan: ", self.metadict['Comment'], "\n", \
@@ -402,21 +405,12 @@ class File:
        
     def plot(self):
         """ Plots data, and use column headers"""
-        if self.tmulti:
-            ran = len(self.sub)
-            for i in range(ran):
-                plt.plot(self.x,self.sub[i].y)
-        else:
-            # single xy data
-            if self.txyxys:
-                x = self.sub.x
-            else:
-                x = self.x
-            y = self.sub.y
-            
-            plt.plot(x,y)
-            plt.xlabel(self.pr_xlabel)
-            plt.ylabel(self.pr_ylabel)
+        for i in range(self.fnsub):
+            plt.plot(self.x,self.sub[i].y)
+        
+        # add labels
+        plt.xlabel(self.pr_xlabel)
+        plt.ylabel(self.pr_ylabel)
 
             
     def debug_info(self):

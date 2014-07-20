@@ -7,7 +7,7 @@ Driver function for spc file
 
 import spc
 
-aaaa = spc.File('Data/raman.SPC')
+aaaa = spc.File('Data/nir.SPC')
     
 aaaa.debug_info()
 
