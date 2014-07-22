@@ -56,6 +56,8 @@ Plan for the future
 
 """
 
+# This is fun
+
 from __future__ import division
 import struct
 import numpy as np 
