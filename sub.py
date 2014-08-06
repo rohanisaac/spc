@@ -47,8 +47,7 @@ class subFile:
         else:
             exp = fexp
             
-        print "exponent is ", exp, "or", 
-        print fexp
+        print "exponent is ", exp, "or", fexp
         
         #--------------------------
         # if x_data present
@@ -71,9 +70,12 @@ class subFile:
         y_dat_str = 'i'*pts
         y_dat_end = y_dat_pos + (4*pts)
         y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
+        print "y_data from ", y_dat_pos, " to ", y_dat_end
         
         self.y = (2**(exp-32))*y_raw
-        self.y = self.y.astype(int)
+        print self.y
+        
+        self.y_int = self.y.astype(int)
             
         # do stuff if subflgs
         # if 1 subfile changed

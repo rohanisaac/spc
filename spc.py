@@ -153,13 +153,13 @@ class File:
 
         # fix data types if necessary
         
-        self.fnpts = int(self.fnpts)
+        self.fnpts = int(self.fnpts) # #of points should be int
         self.fexp = ord(self.fexp)
         
-        self.ffirst = int(self.ffirst)
-        self.flast = int(self.flast)
+        self.ffirst = float(self.ffirst)
+        self.flast = float(self.flast)
         
-        self.flogoff = int(self.flogoff)
+        self.flogoff = int(self.flogoff) # byte; should be int
         
         self.fxtype = ord(self.fxtype)
         self.fytype = ord(self.fytype)
