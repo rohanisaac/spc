@@ -224,17 +224,19 @@ class File:
             sub_pos = sub_end
             
         # flog offset to log data offset not zero (bytes)
+        print "log data position" , self.flogoff
         if self.flogoff: 
             print "Log data exists"
-            log_pos = self.flogoff + self.log_siz
+            log_head_end = self.flogoff + self.log_siz
             self.logsizd, \
                 self.logsizm, \
                 self.logtxto, \
                 self.logbins, \
                 self.logdsks, \
                 self.logspar \
-                = struct.unpack(self.logstc_str, content[self.flogoff:log_pos])
-                
+                = struct.unpack(self.logstc_str, content[self.flogoff:log_head_end])
+            log_pos = self.flogoff + self.logtxto
+            print "Offset to text", self.logtxto
             #print "log stuff", self.logsizd, self.logsizm
             log_end_pos = log_pos + self.logsizd
             self.log_content = content[log_pos:log_end_pos].split('\r\n')
