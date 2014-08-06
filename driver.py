@@ -5,14 +5,15 @@
 Driver function for spc file
 """
 
-# works for f_even_x
+# works for s_evenx
 # works for Ft-ir
 # works for RAMAN
 # works for NMR_SPC
+# works for NMR_FID.SPC
 
 import spc
 
-aaaa = spc.File('Data/NMR_SPC.SPC')
+aaaa = spc.File('Data/nir.SPC')
     
 aaaa.debug_info()
 
@@ -27,4 +28,5 @@ aaaa.debug_info()
 #print ftest.sub.y
 
 aaaa.plot()
+
 

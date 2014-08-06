@@ -42,7 +42,11 @@ class subFile:
         else:
             pts = fnpts
             
-        if self.subexp > 0:
+        if self.subexp == 128:
+            print "Floating y-values"
+            yfloat = True
+        
+        if self.subexp > 0 and self.subexp < 128:
             exp = self.subexp
         else:
             exp = fexp
@@ -73,7 +77,7 @@ class subFile:
         print "y_data from ", y_dat_pos, " to ", y_dat_end
         
         self.y = (2**(exp-32))*y_raw
-        print self.y
+        #print self.y
         
         self.y_int = self.y.astype(int)
             

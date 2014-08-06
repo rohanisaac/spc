@@ -56,8 +56,6 @@ Plan for the future
 
 """
 
-# This is fun
-
 from __future__ import division
 import struct
 import numpy as np 
@@ -197,6 +195,7 @@ class File:
         
         # for each subfile
         for i in range(self.fnsub):
+            print "SUBFILE", i
             print "start pos", sub_pos
             # figure out its size
             subhead_lst = read_subheader(content[sub_pos:(sub_pos+32)])
@@ -219,7 +218,7 @@ class File:
             print "sub_end", sub_end
             # read into object, add to list
             self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
-            print self.sub[i].y
+            # print self.sub[i].y
             # update positions
             sub_pos = sub_end
             
