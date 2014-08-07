@@ -89,7 +89,7 @@ class subFile:
             self.y = (2**(exp-32))*y_raw
         #print self.y
         
-        self.y_int = self.y.astype(int)
+        #self.y_int = self.y.astype(int)
             
         # do stuff if subflgs
         # if 1 subfile changed
