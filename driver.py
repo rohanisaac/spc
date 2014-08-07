@@ -9,7 +9,8 @@ Driver function for spc file
 # works for Ft-ir
 # works for RAMAN
 # works for NMR_SPC
-# works for NMR_FID.SPC
+# works for NMR_FID
+# works for nir
 
 import spc
 

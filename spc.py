@@ -195,11 +195,11 @@ class File:
         
         # for each subfile
         for i in range(self.fnsub):
-            print "SUBFILE", i
+            print "\nSUBFILE", i, "\n----------"
             print "start pos", sub_pos
             # figure out its size
             subhead_lst = read_subheader(content[sub_pos:(sub_pos+32)])
-            print subhead_lst
+            #print subhead_lst
             if subhead_lst[6] > 0:
                 pts = subhead_lst[6]
             else:
@@ -239,7 +239,8 @@ class File:
             #print "log stuff", self.logsizd, self.logsizm
             log_end_pos = log_pos + self.logsizd
             self.log_content = content[log_pos:log_end_pos].split('\r\n')
-            print self.log_content
+            
+            #print self.log_content
             # split log data into dictionary
             self.log_dict = dict()
             self.log_other = [] # put the rest into a list

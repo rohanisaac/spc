@@ -30,7 +30,8 @@ class subFile:
             self.subwlevel, \
             self.subresv \
             = read_subheader(data[:32])
-        print read_subheader(data[:32])
+        
+        #print read_subheader(data[:32])
         y_dat_pos = 32
             
         print "Global pts", fnpts
@@ -52,7 +53,7 @@ class subFile:
         else:
             exp = fexp
             
-        print "exponent is ", exp, "or", fexp
+        #print "exponent is ", exp, "or", fexp
         
         #--------------------------
         # if x_data present
@@ -60,7 +61,8 @@ class subFile:
             
         if txyxy:
             x_str = 'i'*pts
-            print "Len of str", struct.calcsize(x_str)
+            
+            #print "Len of str", struct.calcsize(x_str)
             x_dat_pos = y_dat_pos
             x_dat_end = x_dat_pos + (4*pts)
             x_raw = np.array(struct.unpack(x_str, data[x_dat_pos:x_dat_end]))
@@ -78,7 +80,8 @@ class subFile:
             y_dat_str = 'i'*pts
         y_dat_end = y_dat_pos + (4*pts)
         y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
-        print "y_data from ", y_dat_pos, " to ", y_dat_end
+        
+        #print "y_data from ", y_dat_pos, " to ", y_dat_end
         
         if yfloat:
             self.y = y_raw
