@@ -42,6 +42,7 @@ class subFile:
         else:
             pts = fnpts
             
+        yfloat = False
         if self.subexp == 128:
             print "Floating y-values"
             yfloat = True
@@ -71,12 +72,18 @@ class subFile:
         # extract y_data
         #--------------------------
             
-        y_dat_str = 'i'*pts
+        if yfloat:
+            y_dat_str = 'f'*pts
+        else:
+            y_dat_str = 'i'*pts
         y_dat_end = y_dat_pos + (4*pts)
         y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
         print "y_data from ", y_dat_pos, " to ", y_dat_end
         
-        self.y = (2**(exp-32))*y_raw
+        if yfloat:
+            self.y = y_raw
+        else:
+            self.y = (2**(exp-32))*y_raw
         #print self.y
         
         self.y_int = self.y.astype(int)
