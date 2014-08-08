@@ -34,8 +34,8 @@ class subFile:
         #print read_subheader(data[:32])
         y_dat_pos = 32
             
-        print "Global pts", fnpts
-        print "Individual pts", self.subnpts
+        #print "Global pts", fnpts
+        #print "Individual pts", self.subnpts
         
         # choose between global stuff and local stuff
         if self.subnpts > 0:
@@ -45,7 +45,7 @@ class subFile:
             
         yfloat = False
         if self.subexp == 128:
-            print "Floating y-values"
+            #print "Floating y-values"
             yfloat = True
         
         if self.subexp > 0 and self.subexp < 128:

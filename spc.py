@@ -195,8 +195,8 @@ class File:
         
         # for each subfile
         for i in range(self.fnsub):
-            print "\nSUBFILE", i, "\n----------"
-            print "start pos", sub_pos
+            #print "\nSUBFILE", i, "\n----------"
+            #print "start pos", sub_pos
             # figure out its size
             subhead_lst = read_subheader(content[sub_pos:(sub_pos+32)])
             #print subhead_lst
@@ -205,17 +205,17 @@ class File:
             else:
                 pts = self.fnpts
                 
-            print "Points in subfile", pts
+            #print "Points in subfile", pts
                 
             if self.txyxys:
                 dat_siz = (8*pts) + 32
             else:
                 dat_siz = (4*pts) + 32
                 
-            print "Data size", dat_siz
+            #print "Data size", dat_siz
                 
             sub_end = sub_pos + dat_siz
-            print "sub_end", sub_end
+            #print "sub_end", sub_end
             # read into object, add to list
             self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
             # print self.sub[i].y
