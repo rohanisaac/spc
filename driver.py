@@ -5,20 +5,21 @@
 Driver function for spc file
 """
 
-# works for s_evenx
-# works for Ft-ir
-# works for RAMAN
-# works for NMR_SPC
-# works for NMR_FID
-# works for nir
+# Does not work for the following
+# m_ordz
+# m_xyxy
+# ms
+
+# works with s_xy with hack, need to fix
 
 # load the library
 import spc
 
 # create an object by sending the path to file
-aaaa = spc.File('Data/m_evenz.SPC')
+aaaa = spc.File('Data/s_xy.SPC')
     
 # if needed look at the debug info
+# need to improve debug info
 aaaa.debug_info()
 
 # can access the raw x and y dat

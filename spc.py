@@ -167,6 +167,8 @@ class File:
         
         # null terminated string
         self.fcmnt = str(self.fcmnt).split('\x00')[0]
+        
+        print "Read [SPCHDR]"
 
         # options
         # -------    
@@ -175,7 +177,8 @@ class File:
         
         # optional floating point x-values
         if self.txvals: 
-            print "Seperate x-values"
+            #print "Seperate x-values"
+            
             if self.txyxys:
                 print "x-data in subfile"
             else:
@@ -186,6 +189,7 @@ class File:
                 self.x = (2**(self.fexp-32))*x_raw
                 
                 sub_pos = x_dat_end
+                print "\t[X Values]"
         else:
             print "Generated x-values"
             self.x = np.linspace(self.ffirst,self.flast,num=self.fnpts)
@@ -203,6 +207,11 @@ class File:
             if subhead_lst[6] > 0:
                 pts = subhead_lst[6]
             else:
+                pts = self.fnpts
+                
+            # if xvalues already set, should use that number of points
+            # only necessary for f_xy.spc
+            if self.fnpts > 0:
                 pts = self.fnpts
                 
             #print "Points in subfile", pts
@@ -322,7 +331,7 @@ class File:
         fytype_op = ["Arbitrary Intensity", \
             "Interferogram", \
             "Absorbance", \
-            "Kubelka-Monk", \
+            "Kubelka-Munk", \
             "Counts", \
             "Volts", \
             "Degrees", \

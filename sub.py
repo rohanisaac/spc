@@ -34,18 +34,24 @@ class subFile:
         #print read_subheader(data[:32])
         y_dat_pos = 32
             
-        #print "Global pts", fnpts
-        #print "Individual pts", self.subnpts
+        print "Global pts", fnpts
+        print "Individual pts", self.subnpts
         
         # choose between global stuff and local stuff
-        if self.subnpts > 0:
+        # not very accurate for s_xy
+        if self.subnpts > 0: # probably should be > 0 
             pts = self.subnpts
         else:
             pts = fnpts
             
+            
+        # if xvalues exists, y values should be of the same size (need for f_xy)
+        if fnpts > 0:
+            pts = fnpts
+            
         yfloat = False
         if self.subexp == 128:
-            #print "Floating y-values"
+            print "Floating y-values"
             yfloat = True
         
         if self.subexp > 0 and self.subexp < 128:
