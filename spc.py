@@ -1,59 +1,8 @@
 """ 
-Python script to decode a Thermo Grams *.SPC file format base
+spc class: main class that starts loading data from Thermo Grams *.SPC
+file
+
 @author: Rohan Isaac
-
-Notes
------
-+ Used format specificiton [1]
-+ Loads entire file into memory
-+ Data uses variable naming as in SPC.H
-+ Class variables not in SPC.H prefixed with pr_
-
-To be implemented
------------------
-- Multiple data sets
-- Independent x-data
-- Old data format
-
-References
-----------
-[1] Galactic Universal Data Format Specification 9/4/97, SPC.H
-http://ftirsearch.com/features/converters/SPCFileFormat.htm
-
-
----
-Plan for the future
--------------------
-
--Comletely seperate assigning the data to variables to processing the data
--Loop over the subfile data
--Send each subfile to a new object (subFile)
--Subfile decodes the header and the data for each subfile
-
-
-* Thus an SPC trace file normally has these components in the following order:
-*	SPCHDR		Main header (512 bytes in new format, 224 or 256 in old)
-*      [X Values]	Optional FNPTS 32-bit floating X values if TXVALS flag
-*	SUBHDR		Subfile Header for 1st subfile (32 bytes)
-*	Y Values	FNPTS 32 or 16 bit fixed Y fractions scaled by exponent
-*      [SUBHDR	]	Optional Subfile Header for 2nd subfile if TMULTI flag
-*      [Y Values]	Optional FNPTS Y values for 2nd subfile if TMULTI flag
-*	...		Additional subfiles if TMULTI flag (up to FNSUB total)
-*      [Log Info]	Optional LOGSTC and log data if flogoff is non-zero
-
-* However, files with the TXYXYS ftflgs flag set have these components:
-*	SPCHDR		Main header (512 bytes in new format)
-*	SUBHDR		Subfile Header for 1st subfile (32 bytes)
-*	X Values	FNPTS 32-bit floating X values
-*	Y Values	FNPTS 32 or 16 bit fixed Y fractions scaled by exponent
-*      [SUBHDR	]	Subfile Header for 2nd subfile
-*      [X Values]	FNPTS 32-bit floating X values for 2nd subfile
-*      [Y Values]	FNPTS Y values for 2nd subfile
-*	...		Additional subfiles (up to FNSUB total)
-*      [Directory]	Optional FNSUB SSFSTC entries pointed to by FNPTS
-*      [Log Info]	Optional LOGSTC and log data if flogoff is non-zero
-
-
 """
 
 from __future__ import division
@@ -66,13 +15,14 @@ from global_fun import read_subheader, flag_bits
 
 class File:
     """ 
-    Stores all the attributes of a spectral file, including:
+    Starts loading the data from a .SPC spectral file using data from the 
+    header. Stores all the attributes of a spectral file:
     
-    - Full raw data
-    - Extracted header file data
-    - For each subfile
-        + sub file header info extracted
-        + data for all axes (generated or read)
+    Data
+    ----
+    content: Full raw data
+    sub[i]: sub file object for each subfileFor each subfile
+        sub[i].y
         
     Examples
     --------
@@ -101,6 +51,7 @@ class File:
         # load file
         with open(filename, "rb") as fin:
             content = fin.read()
+            print "Read raw data"
             
         # unpack header  
         # -------------
@@ -168,7 +119,7 @@ class File:
         # null terminated string
         self.fcmnt = str(self.fcmnt).split('\x00')[0]
         
-        print "Read [SPCHDR]"
+        print "\nHEADER"
 
         # options
         # -------    
@@ -189,7 +140,7 @@ class File:
                 self.x = (2**(self.fexp-32))*x_raw
                 
                 sub_pos = x_dat_end
-                print "\t[X Values]"
+                print "Read global x-data"
         else:
             print "Generated x-values"
             self.x = np.linspace(self.ffirst,self.flast,num=self.fnpts)
@@ -199,20 +150,24 @@ class File:
         
         # for each subfile
         for i in range(self.fnsub):
-            #print "\nSUBFILE", i, "\n----------"
+            print "\nSUBFILE", i, "\n----------"
             #print "start pos", sub_pos
+            
             # figure out its size
             subhead_lst = read_subheader(content[sub_pos:(sub_pos+32)])
             #print subhead_lst
             if subhead_lst[6] > 0:
                 pts = subhead_lst[6]
+                print "Using subfile points"
             else:
                 pts = self.fnpts
+                print "Using global subpoints"
                 
             # if xvalues already set, should use that number of points
             # only necessary for f_xy.spc
             if self.fnpts > 0:
                 pts = self.fnpts
+                print "Using global subpoints"
                 
             #print "Points in subfile", pts
                 
@@ -232,7 +187,7 @@ class File:
             sub_pos = sub_end
             
         # flog offset to log data offset not zero (bytes)
-        print "log data position" , self.flogoff
+        #print "log data position" , self.flogoff
         if self.flogoff: 
             print "Log data exists"
             log_head_end = self.flogoff + self.log_siz
@@ -447,7 +402,7 @@ class File:
         Interpret flags and header information to debug more about the file 
         format
         """
-        
+        print "\nDEBUG INFO"
         # Flag bits
         if self.tsprec:
             print "16-bit y data"
@@ -476,6 +431,8 @@ class File:
         else:
             self.pr_versn = "unknown version"
             
+        print "Version:", self.pr_versn
+            
         # subfiles
         if self.fnsub == 1:
             print "Single file only" 
@@ -489,10 +446,10 @@ class File:
             print "Single set of y-values"
             
             
-        print "There are ", self.fnpts, \
-            " points between ", self.ffirst, \
-            " and ", self.flast, \
-            " in steps of ", self.pr_spacing
+        #print "There are ", self.fnpts, \
+        #    " points between ", self.ffirst, \
+        #    " and ", self.flast, \
+        #    " in steps of ", self.pr_spacing
             
 
 

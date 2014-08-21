@@ -53,3 +53,56 @@ Load a file:
 ##References
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
 
+
+Notes
+-----
++ Used format specificiton [1]
++ Loads entire file into memory
++ Data uses variable naming as in SPC.H
++ Class variables not in SPC.H prefixed with pr_
+
+To be implemented
+-----------------
+- Multiple data sets
+- Independent x-data
+- Old data format
+
+References
+----------
+[1] Galactic Universal Data Format Specification 9/4/97, SPC.H
+http://ftirsearch.com/features/converters/SPCFileFormat.htm
+
+
+---
+Plan for the future
+-------------------
+
+-Comletely seperate assigning the data to variables to processing the data
+-Loop over the subfile data
+-Send each subfile to a new object (subFile)
+-Subfile decodes the header and the data for each subfile
+
+
+* Thus an SPC trace file normally has these components in the following order:
+*	SPCHDR		Main header (512 bytes in new format, 224 or 256 in old)
+*      [X Values]	Optional FNPTS 32-bit floating X values if TXVALS flag
+*	SUBHDR		Subfile Header for 1st subfile (32 bytes)
+*	Y Values	FNPTS 32 or 16 bit fixed Y fractions scaled by exponent
+*      [SUBHDR	]	Optional Subfile Header for 2nd subfile if TMULTI flag
+*      [Y Values]	Optional FNPTS Y values for 2nd subfile if TMULTI flag
+*	...		Additional subfiles if TMULTI flag (up to FNSUB total)
+*      [Log Info]	Optional LOGSTC and log data if flogoff is non-zero
+
+* However, files with the TXYXYS ftflgs flag set have these components:
+*	SPCHDR		Main header (512 bytes in new format)
+*	SUBHDR		Subfile Header for 1st subfile (32 bytes)
+*	X Values	FNPTS 32-bit floating X values
+*	Y Values	FNPTS 32 or 16 bit fixed Y fractions scaled by exponent
+*      [SUBHDR	]	Subfile Header for 2nd subfile
+*      [X Values]	FNPTS 32-bit floating X values for 2nd subfile
+*      [Y Values]	FNPTS Y values for 2nd subfile
+*	...		Additional subfiles (up to FNSUB total)
+*      [Directory]	Optional FNSUB SSFSTC entries pointed to by FNPTS
+*      [Log Info]	Optional LOGSTC and log data if flogoff is non-zero
+
+

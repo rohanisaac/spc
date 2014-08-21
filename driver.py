@@ -16,25 +16,24 @@ Driver function for spc file
 import spc
 
 # create an object by sending the path to file
-aaaa = spc.File('Data/s_xy.SPC')
+ftest = spc.File('Data/HENE25.SPC')
     
 # if needed look at the debug info
 # need to improve debug info
-aaaa.debug_info()
+ftest.debug_info()
 
 # can access the raw x and y dat
-#print ftest.sub[0].y
+print ftest.sub[0].y
 
 # or the log data as a dictionay
-#logdat = ftest.log_dict
+print ftest.log_dict
 # stuff that couldn't be processed into a dictionary
-#logcont = ftest.log_other 
+print ftest.log_other 
 
 # output the data to a text file
-#aaaa.output_txt()
+#ftest.output_txt()
 
 # plot the data using matplotlib
-
-aaaa.plot()
+ftest.plot()
 
 
