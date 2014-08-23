@@ -5,13 +5,15 @@ Command line utility to convert .SPC files to .TXT
 @author: Rohan Isaac
 """
 
-import sys, os, glob
+import sys, os, glob, spc
 
 man = """ USAGE: \n $ python convert %file_name1% %file_name2% \n OR \n \
 $ python convert $%dir_name% \n\n EXAMPLE: python convert """
 
 def convert(filename):
-    pass
+    print "Converting", filename
+    f = spc.File(filename)
+    f.write_file(filename+".txt")
 
 def main():
     if len(sys.argv) < 2:

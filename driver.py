@@ -36,4 +36,5 @@ print ftest.log_other
 # plot the data using matplotlib
 ftest.plot()
 
+print ftest.data_txt()
 

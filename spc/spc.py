@@ -364,9 +364,10 @@ class File:
     # ------------------------------------------------------------------------
     # output 
     # ------------------------------------------------------------------------
-    def output_txt(self):
-        """ Output data as plain text, can feed to file later """
-        print self.pr_xlabel, "\t", self.pr_ylabel
+    def data_txt(self):
+        """ Returns x,y column data as a string variable, can be printed to
+        standard output or fed to text file."""
+        dat = self.pr_xlabel + "\t" + self.pr_ylabel + "\n"
         
         if self.txyxys:
             x = self.sub.x
@@ -374,10 +375,22 @@ class File:
             x = self.x
             
         for i in range(self.fnpts):
-            print x[i], "\t", 
+            dat = dat + str(x[i]) + "\t" 
             for j in range(self.fnsub):
-                print self.sub[j].y[i], "\t", 
-            print "\n",
+                dat = dat + str(self.sub[j].y[i]) + "\t" 
+            dat = dat + "\n"
+            
+        return dat
+            
+    def write_file(self, path):
+        """ Output x,y data to text file tab seperated, with column headers
+        Arguments
+        ---------
+        path: full path to output file including extension
+        """
+        f = open(path, 'w')
+        f.write(self.data_txt())
+        
         
     def print_metadata(self):
         """ Print out select metadata"""
