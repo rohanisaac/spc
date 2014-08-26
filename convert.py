@@ -16,11 +16,13 @@ def convert(filename, over):
     if os.path.exists(of):
         if over:
             print "overwriting existing file"
-            write(filename,of)
+            writef(filename,of)
         else:
             print "File already exists. Skipping. If want to overwrite, pass -o"
+    else:
+        writef(filename,of)
             
-def write(inf, of):
+def writef(inf, of):
     f = spc.File(inf)
     f.write_file(of)
 
