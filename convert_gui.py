@@ -8,28 +8,31 @@ Graphical inteface for converter using wx
 
 import wx
 
-class MyFrame(wx.Frame):
-    def __init__(self, parent, ID, title):
-        wx.Frame.__init__(self, parent, ID, title, size=(300, 250))
+class MainFrame(wx.Frame):
+    def __init__(self, title="Convert SPC to TXT", size=(350,200)):
+        wx.Frame.__init__(self, None, id=-1, title=title, size=size)
 
-        panel1 = wx.Panel(self,-1, style=wx.SUNKEN_BORDER)
+        frame_pnl = wx.Panel(self)
 
-        self.btn1 = wx.Button(panel1, -1, "Open files", pos=(50,100), size=(300,30))      
-        self.btn2 = wx.Button(panel1, -1, "Open folder", pos=(50,150), size=(300,30))
+        btn1 = wx.Button(frame_pnl, label="Open files")      
+        btn2 = wx.Button(frame_pnl, label="Open folder")
 
-        box = wx.BoxSizer(wx.VERTICAL)
-        box.Add(panel1, 1, wx.EXPAND)
+        pnl_horSiz = wx.BoxSizer(wx.HORIZONTAL)
+        pnl_horSiz.AddStretchSpacer() # for v centering
+        pnl_horSiz.Add(btn1, flag=wx.ALIGN_CENTER) # for h centering
+        pnl_horSiz.Add(btn2, flag=wx.ALIGN_CENTER)
+        pnl_horSiz.AddStretchSpacer() # for vertical centering
 
-
-        self.btn1.Bind(wx.EVT_BUTTON, self.get_path())
-        self.btn2.Bind(wx.EVT_BUTTON, self.get_dir())
+        frame_pnl.SetSizer(pnl_horSiz)
+        frame_pnl.Layout()
         
-        self.SetAutoLayout(True)
-        self.SetSizer(box)
-        self.Layout()
+        # bind buttons to events
+        self.Bind(wx.EVT_BUTTON, self.get_path, btn1)
+        self.Bind(wx.EVT_BUTTON, self.get_dir, btn2)
         
-    def get_path(self):
-        app = wx.App(None)
+    def get_path(self, event):
+        print "works path"
+        #app = wx.App(self)
         style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.MULTIPLE
         dialog = wx.FileDialog(None, 'Open', wildcard='Thermo Grams Spectra files (.spc) |*.spc', style=style)
         if dialog.ShowModal() == wx.ID_OK:
@@ -39,8 +42,9 @@ class MyFrame(wx.Frame):
         dialog.Destroy()
         return path
         
-    def get_dir(self):
-        app = wx.App(None)
+    def get_dir(self, event):
+        print "works dir"
+        #app = wx.App(self)
         style = wx.DD_DIR_MUST_EXIST
         dialog = wx.DirDialog(None, 'Open', style=style)
         if dialog.ShowModal() == wx.ID_OK:
@@ -49,9 +53,9 @@ class MyFrame(wx.Frame):
             path = None
         dialog.Destroy()
         return path
-
-app = wx.PySimpleApp()
-frame = MyFrame(None, -1, "Convert SPC to TXT")
-frame.Show()
-app.MainLoop()
+        
+if __name__ == '__main__' :
+    app = wx.PySimpleApp( redirect=False)
+    appFrame = MainFrame().Show()
+    app.MainLoop()
 
