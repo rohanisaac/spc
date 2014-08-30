@@ -394,11 +394,11 @@ class File:
         
     def print_metadata(self):
         """ Print out select metadata"""
-        print "Scan: ", self.metadict['Comment'], "\n", \
-            float(self.metadict['Start']), "to ", \
-            float(self.metadict['End']), "; ", \
-            float(self.metadict['Increment']), "cm-1;", \
-            float(self.metadict['Integration Time']), "s integration time"
+        print "Scan: ", self.log_dict['Comment'], "\n", \
+            float(self.log_dict['Start']), "to ", \
+            float(self.log_dict['End']), "; ", \
+            float(self.log_dict['Increment']), "cm-1;", \
+            float(self.log_dict['Integration Time']), "s integration time"
        
     def plot(self):
         """ Plots data, and use column headers"""
