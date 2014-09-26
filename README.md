@@ -7,6 +7,8 @@ Based mainly on the Thermo Scientific SPC File SDK [1]
 
 **Note: Does not work with all SPC formats, may not always give accurate results**
 
+**Graphical converter not functional**
+
 ## Features
 1. Extracts header information into object members
 2. For each subfile, extract subfile data into `subFile` class objects `sub[0]` (, `sub[1]`, `sub[2]`, ...)
