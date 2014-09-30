@@ -1,13 +1,39 @@
 # spc
-A module for working with .SPC files in Python. SPC is a binary data format to store a variety of spectral data, developed by Galactic Industries Corporation in the '90s. Popularly used  Thermo Fisher/Scientific software  GRAMS/AI. Also used by others incuding Ocean Optics, Jobin Yvon Horiba. Can store a variety of spectrum including FT-IR, UV-VIS, X-ray Diffraction, Mass Spectroscopy, NMR, Raman and Fluorescence spectra.
+A module for working with .SPC files in Python. SPC is a binary data format to store a variety of spectral data, developed by Galactic Industries Corporation in the '90s. Popularly used  Thermo Fisher/Scientific software  GRAMS/AI. Also used by others including Ocean Optics, Jobin Yvon Horiba. Can store a variety of spectrum including FT-IR, UV-VIS, X-ray Diffraction, Mass Spectroscopy, NMR, Raman and Fluorescence spectra.
 
 The SPC file format can store either single or multiple y-values, and the x-values can either be given explicitly or even spaced x-values can be generated based on initial and final points as well as number of points. In addition the format can store various log data and parameters, as well as various information such as axis labels and scan type.
 
 Based mainly on the Thermo Scientific SPC File SDK [1]
 
-**Note: Does not work with all SPC formats, may not always give accurate results**
+**May not work with all spc file formats**
 
 **Graphical converter not functional**
+
+## Basic Usage
+
+As a standalone converter. Call the following from a terminal/command prompt
+
+	$ python convert %file_name1% %file_name2%
+
+Or convert an entire directory	
+
+	$ python convert %dir_name%
+	
+
+In a python script
+
+	# import file to python object
+	import spc
+	ftir_1 = spc.File('/path/to/ftir.spc')
+	
+	# extract info from header metadata
+	ftir_1.debug_info()
+	
+	# output file data as columns (tab seperated)
+	ftir_1.output_txt()
+	
+	# plot using matplotlib
+	ftir_1.plot()
 
 ## Features
 1. Extracts header information into object members
@@ -65,21 +91,7 @@ However, files with the TXYXYS ftflgs flag set have these components:
       [Directory]	Optional FNSUB SSFSTC entries pointed to by FNPTS
       [Log Info]	Optional LOGSTC and log data if flogoff is non-zero
 	
-## Examples
-Load a file:
 
-	# import file to python object
-	import spc
-	ftir_1 = spc.File('/path/to/ftir.spc')
-	
-	# extract info from header metadata
-	ftir_1.debug_info()
-	
-	# output file data as columns (tab seperated)
-	ftir_1.output_txt()
-	
-	# plot using matplotlib
-	ftir_1.plot()
 
 ##References
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
