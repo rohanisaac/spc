@@ -116,6 +116,14 @@ class File:
         
         self.fexper = ord(self.fexper)
         
+        # Convert date time to appropriate format
+        d = self.fdate
+        self.year = d >> 20
+        self.month = (d >> 16) % (2**4)
+        self.day = (d >> 11) % (2**5)
+        self.hour = (d >> 6) % (2**5)
+        self.minute = d % (2**6)
+        
         # null terminated string
         self.fcmnt = str(self.fcmnt).split('\x00')[0]
         
