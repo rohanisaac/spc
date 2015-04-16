@@ -141,12 +141,10 @@ class File:
             if self.txyxys:
                 print "x-data in subfile"
             else:
-                x_str = 'i'*self.fnpts
                 x_dat_pos = self.head_siz
-                x_dat_end = self.head_siz + (4*self.fnpts)
-                x_raw = np.array(struct.unpack(x_str, content[x_dat_pos:x_dat_end]))
-                self.x = (2**(self.fexp-32))*x_raw
-                
+                x_dat_end = self.head_siz + (4 * self.fnpts)
+                self.x = np.array([struct.unpack_from('f', content[x_dat_pos:x_dat_end], 4 * i)[0]
+                                   for i in range(0, self.fnpts)])
                 sub_pos = x_dat_end
                 print "Read global x-data"
         else:
