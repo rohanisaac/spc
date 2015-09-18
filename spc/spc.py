@@ -321,18 +321,22 @@ class File:
                     print "Using global subpoints"
                     
                 print "Points in subfile", pts
-                dat_siz = (4*pts) + 32
+                dat_siz = (4*pts)
                     
                 print "Data size", dat_siz
                     
                 sub_end = sub_pos + dat_siz
                 
                 print "sub_end", sub_end
+                
                 # read into object, add to list
-                self.sub.append(subFile(content[sub_pos:sub_end], self.onpts, self.oexp, False))
+                
+                print sub_pos, sub_end, self.onpts, self.oexp
+                self.sub.append(subFile(content[sub_pos-32:sub_end], self.onpts, self.oexp, False))
                 # print self.sub[i].y
                 # update positions
                 sub_pos = sub_end
+                print "DOne"
         
     # ------------------------------------------------------------------------
     # Process other data
