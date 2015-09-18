@@ -33,11 +33,12 @@ class File:
     # Format strings for various parts of the file
     # calculate size of strings using `struct.calcsize(string)`
     head_str = "<cccciddicccci9s9sh32s130s30siicchf48sfifc187s"
-    old_head_str = "<ccifffccicccc8sii28s130s30s32s"
+    old_head_str = "<cchfffcchcccc8shh28s130s30s32s"
     logstc_str = "<iiiii44s" 
     
     # byte positon of various parts of the file
     head_siz = 512
+    old_head_siz = 256
     subhead_siz = 32
     log_siz = 64
     
@@ -53,181 +54,214 @@ class File:
             content = fin.read()
             print "Read raw data"
             
-        # unpack header  
-        # -------------
-        # use little-endian format with standard sizes 
-        # use naming scheme in SPC.H header file
-        self.ftflg, \
-            self.fversn, \
-            self.fexper, \
-            self.fexp, \
-            self.fnpts, \
-            self.ffirst, \
-            self.flast, \
-            self.fnsub, \
-            self.fxtype, \
-            self.fytype, \
-            self.fztype, \
-            self.fpost, \
-            self.fdate, \
-            self.fres, \
-            self.fsource, \
-            self.fpeakpt, \
-            self.fspare, \
-            self.fcmnt, \
-            self.fcatxt, \
-            self.flogoff, \
-            self.fmods, \
-            self.fprocs, \
-            self.flevel, \
-            self.fsampin, \
-            self.ffactor, \
-            self.fmethod, \
-            self.fzinc, \
-            self.fwplanes, \
-            self.fwinc, \
-            self.fwtype, \
-            self.freserv \
-            = struct.unpack(self.head_str, content[:self.head_siz])
-
-        # Flag bits
-        self.tsprec, \
-            self.tcgram, \
-            self.tmulti, \
-            self.trandm, \
-            self.tordrd, \
-            self.talabs, \
-            self.txyxys, \
-            self.txvals = flag_bits(self.ftflg)[::-1]
-
-        # fix data types if necessary
-        
-        self.fnpts = int(self.fnpts) # #of points should be int
-        self.fexp = ord(self.fexp)
-        
-        self.ffirst = float(self.ffirst)
-        self.flast = float(self.flast)
-        
-        self.flogoff = int(self.flogoff) # byte; should be int
-        
-        self.fxtype = ord(self.fxtype)
-        self.fytype = ord(self.fytype)
-        self.fztype = ord(self.fztype)
-        
-        self.fexper = ord(self.fexper)
-        
-        # Convert date time to appropriate format
-        d = self.fdate
-        self.year = d >> 20
-        self.month = (d >> 16) % (2**4)
-        self.day = (d >> 11) % (2**5)
-        self.hour = (d >> 6) % (2**5)
-        self.minute = d % (2**6)
-        
-        # null terminated string
-        self.fcmnt = str(self.fcmnt).split('\x00')[0]
-        
-        print "\nHEADER"
-
-        # options
-        # -------    
-
-        sub_pos = self.head_siz
-        
-        # optional floating point x-values
-        if self.txvals: 
-            #print "Seperate x-values"
             
-            if self.txyxys:
-                print "x-data in subfile"
-            else:
-                x_dat_pos = self.head_siz
-                x_dat_end = self.head_siz + (4 * self.fnpts)
-                self.x = np.array([struct.unpack_from('f', content[x_dat_pos:x_dat_end], 4 * i)[0]
-                                   for i in range(0, self.fnpts)])
-                sub_pos = x_dat_end
-                print "Read global x-data"
-        else:
-            print "Generated x-values"
-            self.x = np.linspace(self.ffirst,self.flast,num=self.fnpts)
+        # extract first two bytes to determine file type version
         
-        # make a list of subfiles          
-        self.sub = []
+        ftflg, fversn = struct.unpack('<cc',content[:2])
         
-        # for each subfile
-        for i in range(self.fnsub):
-            print "\nSUBFILE", i, "\n----------"
-            #print "start pos", sub_pos
+        if fversn == 'K': # new LSB 1st
+            # unpack header  
+            # -------------
+            # use little-endian format with standard sizes 
+            # use naming scheme in SPC.H header file
+            self.ftflg, \
+                self.fversn, \
+                self.fexper, \
+                self.fexp, \
+                self.fnpts, \
+                self.ffirst, \
+                self.flast, \
+                self.fnsub, \
+                self.fxtype, \
+                self.fytype, \
+                self.fztype, \
+                self.fpost, \
+                self.fdate, \
+                self.fres, \
+                self.fsource, \
+                self.fpeakpt, \
+                self.fspare, \
+                self.fcmnt, \
+                self.fcatxt, \
+                self.flogoff, \
+                self.fmods, \
+                self.fprocs, \
+                self.flevel, \
+                self.fsampin, \
+                self.ffactor, \
+                self.fmethod, \
+                self.fzinc, \
+                self.fwplanes, \
+                self.fwinc, \
+                self.fwtype, \
+                self.freserv \
+                = struct.unpack(self.head_str, content[:self.head_siz])
+
+            # Flag bits
+            self.tsprec, \
+                self.tcgram, \
+                self.tmulti, \
+                self.trandm, \
+                self.tordrd, \
+                self.talabs, \
+                self.txyxys, \
+                self.txvals = flag_bits(self.ftflg)[::-1]
+
+            # fix data types if necessary
             
-            # figure out its size
-            subhead_lst = read_subheader(content[sub_pos:(sub_pos+32)])
-            #print subhead_lst
-            if subhead_lst[6] > 0:
-                pts = subhead_lst[6]
-                print "Using subfile points"
-            else:
-                pts = self.fnpts
-                print "Using global subpoints"
-                
-            # if xvalues already set, should use that number of points
-            # only necessary for f_xy.spc
-            if self.fnpts > 0:
-                pts = self.fnpts
-                print "Using global subpoints"
-                
-            #print "Points in subfile", pts
-                
-            if self.txyxys:
-                dat_siz = (8*pts) + 32
-            else:
-                dat_siz = (4*pts) + 32
-                
-            #print "Data size", dat_siz
-                
-            sub_end = sub_pos + dat_siz
-            #print "sub_end", sub_end
-            # read into object, add to list
-            self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
-            # print self.sub[i].y
-            # update positions
-            sub_pos = sub_end
+            self.fnpts = int(self.fnpts) # #of points should be int
+            self.fexp = ord(self.fexp)
             
-        # flog offset to log data offset not zero (bytes)
-        #print "log data position" , self.flogoff
-        if self.flogoff: 
-            print "Log data exists"
-            log_head_end = self.flogoff + self.log_siz
-            self.logsizd, \
-                self.logsizm, \
-                self.logtxto, \
-                self.logbins, \
-                self.logdsks, \
-                self.logspar \
-                = struct.unpack(self.logstc_str, content[self.flogoff:log_head_end])
-            log_pos = self.flogoff + self.logtxto
-            print "Offset to text", self.logtxto
-            #print "log stuff", self.logsizd, self.logsizm
-            log_end_pos = log_pos + self.logsizd
-            self.log_content = content[log_pos:log_end_pos].split('\r\n')
+            self.ffirst = float(self.ffirst)
+            self.flast = float(self.flast)
             
-            #print self.log_content
-            # split log data into dictionary
-            self.log_dict = dict()
-            self.log_other = [] # put the rest into a list
-            for x in self.log_content:
-                if x.find('=') >= 0:
-                    key, value = x.split('=')
-                    self.log_dict[key] = value
+            self.flogoff = int(self.flogoff) # byte; should be int
+            
+            self.fxtype = ord(self.fxtype)
+            self.fytype = ord(self.fytype)
+            self.fztype = ord(self.fztype)
+            
+            self.fexper = ord(self.fexper)
+            
+            # Convert date time to appropriate format
+            d = self.fdate
+            self.year = d >> 20
+            self.month = (d >> 16) % (2**4)
+            self.day = (d >> 11) % (2**5)
+            self.hour = (d >> 6) % (2**5)
+            self.minute = d % (2**6)
+            
+            # null terminated string
+            self.fcmnt = str(self.fcmnt).split('\x00')[0]
+            
+            print "\nHEADER"
+
+            # options
+            # -------    
+
+            sub_pos = self.head_siz
+            
+            # optional floating point x-values
+            if self.txvals: 
+                #print "Seperate x-values"
+                
+                if self.txyxys:
+                    print "x-data in subfile"
                 else:
-                    self.log_other.append(x)
+                    x_dat_pos = self.head_siz
+                    x_dat_end = self.head_siz + (4 * self.fnpts)
+                    self.x = np.array([struct.unpack_from('f', content[x_dat_pos:x_dat_end], 4 * i)[0]
+                                       for i in range(0, self.fnpts)])
+                    sub_pos = x_dat_end
+                    print "Read global x-data"
+            else:
+                print "Generated x-values"
+                self.x = np.linspace(self.ffirst,self.flast,num=self.fnpts)
+            
+            # make a list of subfiles          
+            self.sub = []
+            
+            # for each subfile
+            for i in range(self.fnsub):
+                print "\nSUBFILE", i, "\n----------"
+                #print "start pos", sub_pos
+                
+                # figure out its size
+                subhead_lst = read_subheader(content[sub_pos:(sub_pos+32)])
+                #print subhead_lst
+                if subhead_lst[6] > 0:
+                    pts = subhead_lst[6]
+                    print "Using subfile points"
+                else:
+                    pts = self.fnpts
+                    print "Using global subpoints"
+                    
+                # if xvalues already set, should use that number of points
+                # only necessary for f_xy.spc
+                if self.fnpts > 0:
+                    pts = self.fnpts
+                    print "Using global subpoints"
+                    
+                #print "Points in subfile", pts
+                    
+                if self.txyxys:
+                    dat_siz = (8*pts) + 32
+                else:
+                    dat_siz = (4*pts) + 32
+                    
+                #print "Data size", dat_siz
+                    
+                sub_end = sub_pos + dat_siz
+                #print "sub_end", sub_end
+                # read into object, add to list
+                self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
+                # print self.sub[i].y
+                # update positions
+                sub_pos = sub_end
+                
+            # flog offset to log data offset not zero (bytes)
+            #print "log data position" , self.flogoff
+            if self.flogoff: 
+                print "Log data exists"
+                log_head_end = self.flogoff + self.log_siz
+                self.logsizd, \
+                    self.logsizm, \
+                    self.logtxto, \
+                    self.logbins, \
+                    self.logdsks, \
+                    self.logspar \
+                    = struct.unpack(self.logstc_str, content[self.flogoff:log_head_end])
+                log_pos = self.flogoff + self.logtxto
+                print "Offset to text", self.logtxto
+                #print "log stuff", self.logsizd, self.logsizm
+                log_end_pos = log_pos + self.logsizd
+                self.log_content = content[log_pos:log_end_pos].split('\r\n')
+                
+                #print self.log_content
+                # split log data into dictionary
+                self.log_dict = dict()
+                self.log_other = [] # put the rest into a list
+                for x in self.log_content:
+                    if x.find('=') >= 0:
+                        key, value = x.split('=')
+                        self.log_dict[key] = value
+                    else:
+                        self.log_other.append(x)
 
-        # spacing between data
-        self.pr_spacing = (self.flast-self.ffirst)/(self.fnpts-1)
-        
-        # call functions
-        self.set_labels()
-        self.set_exp_type()
-
+            # spacing between data
+            self.pr_spacing = (self.flast-self.ffirst)/(self.fnpts-1)
+            
+            # call functions
+            self.set_labels()
+            self.set_exp_type()
+            print "Boo beep new version LSB"
+            
+        elif fversn == 'L': # new MSB 1st
+            pass # To be implemented
+            print "New version MSB"
+            
+        elif fversn == 'M': # old format
+            self.oftflgs, \
+                self.oversn, \
+                self.oexp, \
+                self.onpts, \
+                self.ofirst, \
+                self.olast, \
+                self.oxtype, \
+                self.oytype, \
+                self.oyear, \
+                self.omonth, \
+                self.oday, \
+                self.ohour, \
+                self.ominute, \
+                self.ores, \
+                self.opeakpt, \
+                self.onscans, \
+                self.ospare, \
+                self.ocmnt, \
+                self.ocatxt, \
+                self.osubh1 = struct.unpack(self.old_head_str, content[:self.old_head_siz])
+            print "Old Version"
 
         
     # ------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Graphical inteface for converter using wx
+Graphical interface for converter using wx
 
 @author: Rohan Isaac
 """
@@ -63,6 +63,7 @@ class MainFrame(wx.Frame):
             path = None
         dialog.Destroy()
         self.path = path
+        print path
         
     def get_dir(self, event):
         print "works dir"
@@ -75,6 +76,7 @@ class MainFrame(wx.Frame):
             path = None
         dialog.Destroy()
         self.path = path
+        print path
         
 if __name__ == '__main__' :
     app = wx.PySimpleApp( redirect=False)
