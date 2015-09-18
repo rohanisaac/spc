@@ -60,6 +60,7 @@ class File:
         ftflg, fversn = struct.unpack('<cc',content[:2])
         
         if fversn == 'K': # new LSB 1st
+            print "New LSB 1st"
             # unpack header  
             # -------------
             # use little-endian format with standard sizes 
@@ -234,13 +235,15 @@ class File:
             # call functions
             self.set_labels()
             self.set_exp_type()
-            print "Boo beep new version LSB"
+            
             
         elif fversn == 'L': # new MSB 1st
+            print "New MSB 1st, yet to be implemented"
             pass # To be implemented
-            print "New version MSB"
+            
             
         elif fversn == 'M': # old format
+            print "Old Version"
             self.oftflgs, \
                 self.oversn, \
                 self.oexp, \
@@ -261,8 +264,75 @@ class File:
                 self.ocmnt, \
                 self.ocatxt, \
                 self.osubh1 = struct.unpack(self.old_head_str, content[:self.old_head_siz])
-            print "Old Version"
-
+            
+            # fix data types
+            self.oexp = int(self.oexp)
+            self.onpts = float(self.onpts)
+            self.ofirst = float(self.ofirst)
+            self.olast = float(self.olast)
+            
+            # Date information
+            """self.oyear = int(self.oyear) # need to fix
+            self.omonth = int(self.omonth)
+            self.oday = int(self.oday)
+            self.ohour = int(self.ohour)
+            self.ominute = int(self.ominute)"""
+            
+            # number of scans (?subfiles?)
+            self.onscans = int(self.onscans)
+            
+            # null terminated strings
+            self.ores = str(self.ores).split('\x00')[0]
+            self.ocmnt = str(self.ocmnt).split('\x00')[0]
+            
+            # !!! only works for single subfile as of now
+            ## forcing 1 file 
+            self.onsub = 1
+            
+            self.x = np.linspace(self.ofirst,self.olast,num=self.onpts)
+            # make a list of subfiles          
+            self.sub = []
+           
+            sub_pos = self.old_head_siz
+            
+            # make onpts integer
+            self.onpts = int(self.onpts)
+            
+            # for each subfile
+            for i in range(self.onsub):
+                print "\nSUBFILE", i, "\n----------"
+                print "start pos", sub_pos
+                
+                # figure out its size
+                subhead_lst = read_subheader(self.osubh1)
+                
+                print subhead_lst
+                if subhead_lst[6] > 0:
+                    pts = subhead_lst[6]
+                    print "Using subfile points"
+                else:
+                    pts = self.onpts
+                    print "Using global subpoints"
+                    
+                # if xvalues already set, should use that number of points
+                # only necessary for f_xy.spc
+                if self.onpts > 0:
+                    pts = self.onpts
+                    print "Using global subpoints"
+                    
+                print "Points in subfile", pts
+                dat_siz = (4*pts) + 32
+                    
+                print "Data size", dat_siz
+                    
+                sub_end = sub_pos + dat_siz
+                
+                print "sub_end", sub_end
+                # read into object, add to list
+                self.sub.append(subFile(content[sub_pos:sub_end], self.onpts, self.oexp, False))
+                # print self.sub[i].y
+                # update positions
+                sub_pos = sub_end
         
     # ------------------------------------------------------------------------
     # Process other data
