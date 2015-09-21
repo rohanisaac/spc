@@ -10,7 +10,7 @@ import struct
 import numpy as np 
 import matplotlib.pyplot as plt
 
-from sub import subFile
+from sub import subFile, subFileOld
 from global_fun import read_subheader, flag_bits
 
 class File:
@@ -332,11 +332,10 @@ class File:
                 # read into object, add to list
                 
                 print sub_pos, sub_end, self.onpts, self.oexp
-                self.sub.append(subFile(content[sub_pos-32:sub_end], self.onpts, self.oexp, False))
+                self.sub.append(subFileOld(content[sub_pos-32:sub_end], self.onpts, self.oexp, False))
                 # print self.sub[i].y
                 # update positions
                 sub_pos = sub_end
-                print "DOne"
         
     # ------------------------------------------------------------------------
     # Process other data
