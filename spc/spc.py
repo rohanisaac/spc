@@ -23,6 +23,7 @@ class File:
     content: Full raw data
     sub[i]: sub file object for each subfileFor each subfile
         sub[i].y
+    x: x-data, global, or for the first subheader
         
     Examples
     --------

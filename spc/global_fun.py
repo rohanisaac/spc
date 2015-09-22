@@ -67,4 +67,6 @@ def flag_bits(n):
     >>> flag_bits('A') # ASCII 65, Binary: 01000001
     [False, True, False, False, False, False, False, True]
     """
-    return [x == '1' for x in list('{0:08b}'.format(ord(n)))]   
+    return [x == '1' for x in list('{0:08b}'.format(ord(n)))]  
+    
+

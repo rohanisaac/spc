@@ -194,7 +194,7 @@ class subFileOld:
         if yfloat:
             y_dat_str = '<'+ 'f'*pts
         else:
-            y_dat_str = '>' + 'b'*4*pts
+            y_dat_str = '>' + 'B'*4*pts
         y_dat_end = y_dat_pos + (4*pts)
         
         y_raw = struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end])
@@ -205,12 +205,15 @@ class subFileOld:
             print "Extracted floating y data"
         else:
             print "Extracted integer y-data"
-            self.y_int = []
+            y_int = []
             for i in range(0,len(y_raw),4):
-                self.y_int.append((y_raw[i+1]*(256**3) + \
-                y_raw[i]*(256**2) + y_raw[i+3]*(256) + y_raw[i+2])/(2**(32-exp)))
+                y_int.append((y_raw[i+1]*(256**3) + \
+                y_raw[i]*(256**2) + y_raw[i+3]*(256) + y_raw[i+2]))
+            # fix negative values by casting to np.int32
+            self.y_int = np.int32(y_int) / (2**(32-exp))
+        # fix negative values
         #print self.y
-            
+        
         # do stuff if subflgs
         # if 1 subfile changed
         # if 8 if peak table should not be used
