@@ -7,9 +7,7 @@ Based mainly on the Thermo Scientific SPC File SDK [1]
 
 **May not work with all spc file formats**
 
-**Graphical converter not functional**
-
-**Other notes**
+**Graphical converter not functional yet**
 
 ## Basic Usage
 
