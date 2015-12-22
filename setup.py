@@ -8,5 +8,5 @@ setup(name='spc',
       author_email='rohan_isaac@yahoo.com',
       url='https://github.com/rohanisaac/spc',
       packages=['spc'],
-      install_requires=['numpy','scipy','matplotlib'],
+      install_requires=['numpy', 'scipy', 'matplotlib'],
       )
