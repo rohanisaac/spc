@@ -9,29 +9,31 @@ Based mainly on the Thermo Scientific SPC File SDK [1]
 
 **Graphical converter not functional**
 
+**Other notes**
+
 ## Basic Usage
 
 As a standalone converter. Call the following from a terminal/command prompt
 
 	$ python convert %file_name1% %file_name2%
 
-Or convert an entire directory	
+Or convert an entire directory
 
 	$ python convert %dir_name%
-	
+
 
 In a python script
 
 	# import file to python object
 	import spc
 	ftir_1 = spc.File('/path/to/ftir.spc')
-	
+
 	# extract info from header metadata
 	ftir_1.debug_info()
-	
+
 	# output file data as columns (tab seperated)
 	ftir_1.output_txt()
-	
+
 	# plot using matplotlib
 	ftir_1.plot()
 
@@ -60,7 +62,7 @@ In a python script
 - class subFile (sub.py)
 	+ (optional) x
 	+ y
-	
+
 ###Notes
 + Used format specificiton [1]
 + Loads entire file into memory
@@ -90,15 +92,8 @@ However, files with the TXYXYS ftflgs flag set have these components:
 	...		Additional subfiles (up to FNSUB total)
       [Directory]	Optional FNSUB SSFSTC entries pointed to by FNPTS
       [Log Info]	Optional LOGSTC and log data if flogoff is non-zero
-	
+
 
 
 ##References
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
-
-
-
-
-
-
-
