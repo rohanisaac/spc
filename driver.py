@@ -17,7 +17,7 @@ import spc
 
 # create an object by sending the path to file
 ftest = spc.File('Data/HENE25.SPC')
-    
+
 # if needed look at the debug info
 # need to improve debug info
 ftest.debug_info()
@@ -28,7 +28,7 @@ print ftest.sub[0].y
 # or the log data as a dictionay
 print ftest.log_dict
 # stuff that couldn't be processed into a dictionary
-print ftest.log_other 
+print ftest.log_other
 
 # output the data to a text file
 #ftest.output_txt()
@@ -37,4 +37,3 @@ print ftest.log_other
 ftest.plot()
 
 print ftest.data_txt()
-

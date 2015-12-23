@@ -1,5 +1,4 @@
-import os #, sys
-#sys.path.append('spc')
+import os
 import spc
 
 tfile = 0

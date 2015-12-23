@@ -10,15 +10,16 @@ import struct
 # Process subfile data
 # ------------------------------------------------------------------------
 
+
 def read_subheader(subheader):
     """
     Return the subheader as a list
-    
+
     Parameters
     ----------
     subheader (string):
         32 character string in the subheader format
-        
+
     Returns
     -------
     list:
@@ -34,39 +35,38 @@ def read_subheader(subheader):
         [8] subwlevel
         [9] subresv
     """
-    
+
     subhead_str = "<cchfffiif4s"
     items = struct.unpack(subhead_str, subheader)
-    
+
     item_cpy = []
     item_cpy.append(ord(items[0]))
     item_cpy.append(ord(items[1]))
-    for i in range(2,10):
+    for i in range(2, 10):
         item_cpy.append(items[i])
 
     return item_cpy
-    
+
 # ------------------------------------------------------------------------
 # Decode a character to boolean array
 # ------------------------------------------------------------------------
 
+
 def flag_bits(n):
     """Return the bits of a byte as a boolean array:
-    
+
     n (charater):
         8-bit character passed
-    
+
     Returns
-    -------    
+    -------
     list (bool):
         boolean list representing the bits in the byte
         (big endian) ['most sig bit', ... , 'least sig bit' ]
-        
+
     Example
     -------
     >>> flag_bits('A') # ASCII 65, Binary: 01000001
     [False, True, False, False, False, False, False, True]
     """
-    return [x == '1' for x in list('{0:08b}'.format(ord(n)))]  
-    
-
+    return [x == '1' for x in list('{0:08b}'.format(ord(n)))]
