@@ -31,7 +31,7 @@ print ftest.log_dict
 print ftest.log_other
 
 # output the data to a text file
-#ftest.output_txt()
+# ftest.output_txt()
 
 # plot the data using matplotlib
 ftest.plot()
