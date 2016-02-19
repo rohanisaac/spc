@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from sub import subFile, subFileOld
 from global_fun import read_subheader, flag_bits
 
+
 class File:
     """
     Starts loading the data from a .SPC spectral file using data from the
@@ -55,12 +56,11 @@ class File:
             content = fin.read()
             print "Read raw data"
 
-
         # extract first two bytes to determine file type version
 
-        ftflg, fversn = struct.unpack('<cc',content[:2])
+        ftflg, fversn = struct.unpack('<cc', content[:2])
 
-        if fversn == 'K': # new LSB 1st
+        if fversn == 'K':  # new LSB 1st
             print "New LSB 1st"
             # unpack header
             # -------------
@@ -111,13 +111,13 @@ class File:
 
             # fix data types if necessary
 
-            self.fnpts = int(self.fnpts) # #of points should be int
+            self.fnpts = int(self.fnpts)  # of points should be int
             self.fexp = ord(self.fexp)
 
             self.ffirst = float(self.ffirst)
             self.flast = float(self.flast)
 
-            self.flogoff = int(self.flogoff) # byte; should be int
+            self.flogoff = int(self.flogoff)  # byte; should be int
 
             self.fxtype = ord(self.fxtype)
             self.fytype = ord(self.fytype)
@@ -145,20 +145,22 @@ class File:
 
             # optional floating point x-values
             if self.txvals:
-                #print "Seperate x-values"
+                # print "Seperate x-values"
 
                 if self.txyxys:
                     print "x-data in subfile"
                 else:
                     x_dat_pos = self.head_siz
                     x_dat_end = self.head_siz + (4 * self.fnpts)
-                    self.x = np.array([struct.unpack_from('f', content[x_dat_pos:x_dat_end], 4 * i)[0]
-                                       for i in range(0, self.fnpts)])
+                    self.x = np.array(
+                        [struct.unpack_from(
+                            'f', content[x_dat_pos:x_dat_end], 4 * i)[0]
+                            for i in range(0, self.fnpts)])
                     sub_pos = x_dat_end
                     print "Read global x-data"
             else:
                 print "Generated x-values"
-                self.x = np.linspace(self.ffirst,self.flast,num=self.fnpts)
+                self.x = np.linspace(self.ffirst, self.flast, num=self.fnpts)
 
             # make a list of subfiles
             self.sub = []
@@ -166,11 +168,11 @@ class File:
             # for each subfile
             for i in range(self.fnsub):
                 print "\nSUBFILE", i, "\n----------"
-                #print "start pos", sub_pos
+                # print "start pos", sub_pos
 
                 # figure out its size
-                subhead_lst = read_subheader(content[sub_pos:(sub_pos+32)])
-                #print subhead_lst
+                subhead_lst = read_subheader(content[sub_pos:(sub_pos + 32)])
+                # print subhead_lst
                 if subhead_lst[6] > 0:
                     pts = subhead_lst[6]
                     print "Using subfile points"
@@ -184,25 +186,26 @@ class File:
                     pts = self.fnpts
                     print "Using global subpoints"
 
-                #print "Points in subfile", pts
+                # print "Points in subfile", pts
 
                 if self.txyxys:
-                    dat_siz = (8*pts) + 32
+                    dat_siz = (8 * pts) + 32
                 else:
-                    dat_siz = (4*pts) + 32
+                    dat_siz = (4 * pts) + 32
 
-                #print "Data size", dat_siz
+                # print "Data size", dat_siz
 
                 sub_end = sub_pos + dat_siz
-                #print "sub_end", sub_end
+                # print "sub_end", sub_end
                 # read into object, add to list
-                self.sub.append(subFile(content[sub_pos:sub_end], self.fnpts, self.fexp, self.txyxys))
+                self.sub.append(subFile(content[sub_pos:sub_end],
+                                        self.fnpts, self.fexp, self.txyxys))
                 # print self.sub[i].y
                 # update positions
                 sub_pos = sub_end
 
             # flog offset to log data offset not zero (bytes)
-            #print "log data position" , self.flogoff
+            # print "log data position" , self.flogoff
             if self.flogoff:
                 print "Log data exists"
                 log_head_end = self.flogoff + self.log_siz
@@ -212,17 +215,18 @@ class File:
                     self.logbins, \
                     self.logdsks, \
                     self.logspar \
-                    = struct.unpack(self.logstc_str, content[self.flogoff:log_head_end])
+                    = struct.unpack(self.logstc_str,
+                                    content[self.flogoff:log_head_end])
                 log_pos = self.flogoff + self.logtxto
                 print "Offset to text", self.logtxto
-                #print "log stuff", self.logsizd, self.logsizm
+                # print "log stuff", self.logsizd, self.logsizm
                 log_end_pos = log_pos + self.logsizd
                 self.log_content = content[log_pos:log_end_pos].split('\r\n')
 
-                #print self.log_content
+                # print self.log_content
                 # split log data into dictionary
                 self.log_dict = dict()
-                self.log_other = [] # put the rest into a list
+                self.log_other = []  # put the rest into a list
                 for x in self.log_content:
                     if x.find('=') >= 0:
                         key, value = x.split('=')
@@ -231,19 +235,17 @@ class File:
                         self.log_other.append(x)
 
             # spacing between data
-            self.pr_spacing = (self.flast-self.ffirst)/(self.fnpts-1)
+            self.pr_spacing = (self.flast - self.ffirst) / (self.fnpts - 1)
 
             # call functions
             self.set_labels()
             self.set_exp_type()
 
-
-        elif fversn == 'L': # new MSB 1st
+        elif fversn == 'L':  # new MSB 1st
             print "New MSB 1st, yet to be implemented"
-            pass # To be implemented
+            pass  # To be implemented
 
-
-        elif fversn == 'M': # old format
+        elif fversn == 'M':  # old format
             print "Old Version"
             self.oftflgs, \
                 self.oversn, \
@@ -264,7 +266,8 @@ class File:
                 self.ospare, \
                 self.ocmnt, \
                 self.ocatxt, \
-                self.osubh1 = struct.unpack(self.old_head_str, content[:self.old_head_siz])
+                self.osubh1 = struct.unpack(self.old_head_str,
+                                            content[:self.old_head_siz])
 
             # fix data types
             self.oexp = int(self.oexp)
@@ -287,10 +290,10 @@ class File:
             self.ocmnt = str(self.ocmnt).split('\x00')[0]
 
             # !!! only works for single subfile as of now
-            ## forcing 1 file
+            # forcing 1 file
             self.onsub = 1
 
-            self.x = np.linspace(self.ofirst,self.olast,num=self.onpts)
+            self.x = np.linspace(self.ofirst, self.olast, num=self.onpts)
             # make a list of subfiles
             self.sub = []
 
@@ -322,7 +325,7 @@ class File:
                     print "Using global subpoints"
 
                 print "Points in subfile", pts
-                dat_siz = (4*pts)
+                dat_siz = (4 * pts)
 
                 print "Data size", dat_siz
 
@@ -333,23 +336,26 @@ class File:
                 # read into object, add to list
 
                 print sub_pos, sub_end, self.onpts, self.oexp
-                self.sub.append(subFileOld(content[sub_pos-32:sub_end], self.onpts, self.oexp, False))
+                self.sub.append(subFileOld(
+                    content[sub_pos - 32:sub_end],
+                    self.onpts, self.oexp, False))
                 # print self.sub[i].y
                 # update positions
                 sub_pos = sub_end
         elif ord(fversn) == 207:
             print "Highly experimental format, may not work "
-            raw_data = content[10240:] # data starts here (maybe every time)
-            s_32 = chr(int('0',2))*32 # spacing between y and x data is atleast 0 bytes
-            s_8 = chr(int('0',2))*8 # zero double
+            raw_data = content[10240:]  # data starts here (maybe every time)
+            # spacing between y and x data is atleast 0 bytes
+            s_32 = chr(int('0', 2)) * 32
+            s_8 = chr(int('0', 2)) * 8  # zero double
             dat_len = raw_data.find(s_32)
             for i in range(dat_len, len(raw_data), 8):
                 # find first non zero double
-                if raw_data[i:i+8] != s_8:
+                if raw_data[i:i + 8] != s_8:
                     break
-            dat_siz = int(dat_len/8)
-            self.y = struct.unpack('<'+dat_siz*'d', raw_data[:dat_len])
-            self.x = struct.unpack('<'+dat_siz*'d', raw_data[i:i+dat_len])
+            dat_siz = int(dat_len / 8)
+            self.y = struct.unpack('<' + dat_siz * 'd', raw_data[:dat_len])
+            self.x = struct.unpack('<' + dat_siz * 'd', raw_data[i:i + dat_len])
 
         else:
             print "File type %s not supported yet. Please add issue. " % hex(ord(fversn))
@@ -364,40 +370,39 @@ class File:
         Set the x, y, z axis labels using various information in file content
         """
 
-        #--------------------------
+        # --------------------------
         # units for x,z,w axes
-        #--------------------------
-        fxtype_op = ["Arbitrary", \
-            "Wavenumber (cm-1)", \
-            "Micrometers (um)", \
-            "Nanometers (nm)", \
-            "Seconds ", \
-            "Minutes", "Hertz (Hz)", \
-            "Kilohertz (KHz)", \
-            "Megahertz (MHz) ", \
-            "Mass (M/z)", \
-            "Parts per million (PPM)", \
-            "Days", \
-            "Years", \
-            "Raman Shift (cm-1)", \
-            "eV", \
-            "XYZ text labels in fcatxt (old 0x4D version only)", \
-            "Diode Number", \
-            "Channel", \
-            "Degrees", \
-            "Temperature (F)",  \
-            "Temperature (C)", \
-            "Temperature (K)", \
-            "Data Points", \
-            "Milliseconds (mSec)", \
-            "Microseconds (uSec) ", \
-            "Nanoseconds (nSec)", \
-            "Gigahertz (GHz)", \
-            "Centimeters (cm)", \
-            "Meters (m)", \
-            "Millimeters (mm)", \
-            "Hours"]
-
+        # --------------------------
+        fxtype_op = ["Arbitrary",
+                     "Wavenumber (cm-1)",
+                     "Micrometers (um)",
+                     "Nanometers (nm)",
+                     "Seconds ",
+                     "Minutes", "Hertz (Hz)",
+                     "Kilohertz (KHz)",
+                     "Megahertz (MHz) ",
+                     "Mass (M/z)",
+                     "Parts per million (PPM)",
+                     "Days",
+                     "Years",
+                     "Raman Shift (cm-1)",
+                     "eV",
+                     "XYZ text labels in fcatxt (old 0x4D version only)",
+                     "Diode Number",
+                     "Channel",
+                     "Degrees",
+                     "Temperature (F)",
+                     "Temperature (C)",
+                     "Temperature (K)",
+                     "Data Points",
+                     "Milliseconds (mSec)",
+                     "Microseconds (uSec) ",
+                     "Nanoseconds (nSec)",
+                     "Gigahertz (GHz)",
+                     "Centimeters (cm)",
+                     "Meters (m)",
+                     "Millimeters (mm)",
+                     "Hours"]
 
         if self.fxtype < 30:
             self.pr_xlabel = fxtype_op[self.fxtype]
@@ -409,44 +414,42 @@ class File:
         else:
             self.pr_zlabel = "Unknown"
 
-
-        #--------------------------
+        # --------------------------
         # units y-axis
-        #--------------------------
+        # --------------------------
 
-        fytype_op = ["Arbitrary Intensity", \
-            "Interferogram", \
-            "Absorbance", \
-            "Kubelka-Munk", \
-            "Counts", \
-            "Volts", \
-            "Degrees", \
-            "Milliamps", \
-            "Millimeters", \
-            "Millivolts", \
-            "Log(1/R)", \
-            "Percent", \
-            "Intensity", \
-            "Relative Intensity", \
-            "Energy", \
-            "", \
-            "Decibel", \
-            "", \
-            "", \
-            "Temperature (F)", \
-            "Temperature (C)", \
-            "Temperature (K)", \
-            "Index of Refraction [N]", \
-            "Extinction Coeff. [K]", \
-            "Real", \
-            "Imaginary", \
-            "Complex"]
+        fytype_op = ["Arbitrary Intensity",
+                     "Interferogram",
+                     "Absorbance",
+                     "Kubelka-Munk",
+                     "Counts",
+                     "Volts",
+                     "Degrees",
+                     "Milliamps",
+                     "Millimeters",
+                     "Millivolts",
+                     "Log(1/R)",
+                     "Percent",
+                     "Intensity",
+                     "Relative Intensity",
+                     "Energy",
+                     "",
+                     "Decibel",
+                     "",
+                     "",
+                     "Temperature (F)",
+                     "Temperature (C)",
+                     "Temperature (K)",
+                     "Index of Refraction [N]",
+                     "Extinction Coeff. [K]",
+                     "Real",
+                     "Imaginary",
+                     "Complex"]
 
-        fytype_op2 = ["Transmission", \
-            "Reflectance", \
-            "Arbitrary or Single Beam with Valley Peaks",  \
-            "Emission" ]
-
+        fytype_op2 = ["Transmission",
+                      "Reflectance",
+                      "Arbitrary or Single Beam with Valley Peaks",
+                      "Emission"]
 
         if self.fytype < 27:
             self.pr_ylabel = fytype_op[self.fytype]
@@ -455,9 +458,9 @@ class File:
         else:
             self.pr_ylabel = "Unknown"
 
-        #--------------------------
+        # --------------------------
         # check if labels are included as text
-        #--------------------------
+        # --------------------------
 
         # split it based on 00 string
         # format x, y, z
@@ -475,20 +478,20 @@ class File:
     def set_exp_type(self):
         """ Set the experiment type """
 
-        fexper_op = ["General SPC", \
-            "Gas Chromatogram", \
-            "General Chromatogram", \
-            "HPLC Chromatogram", \
-            "FT-IR, FT-NIR, FT-Raman Spectrum or Igram",\
-            "NIR Spectrum", \
-            "UV-VIS Spectrum", \
-            "X-ray Diffraction Spectrum", \
-            "Mass Spectrum ", \
-            "NMR Spectrum or FID", \
-            "Raman Spectrum",\
-            "Fluorescence Spectrum", \
-            "Atomic Spectrum", \
-            "Chromatography Diode Array Spectra"]
+        fexper_op = ["General SPC",
+                     "Gas Chromatogram",
+                     "General Chromatogram",
+                     "HPLC Chromatogram",
+                     "FT-IR, FT-NIR, FT-Raman Spectrum or Igram",
+                     "NIR Spectrum",
+                     "UV-VIS Spectrum",
+                     "X-ray Diffraction Spectrum",
+                     "Mass Spectrum ",
+                     "NMR Spectrum or FID",
+                     "Raman Spectrum",
+                     "Fluorescence Spectrum",
+                     "Atomic Spectrum",
+                     "Chromatography Diode Array Spectra"]
 
         self.pr_exp_type = fexper_op[self.fexper]
 
@@ -531,7 +534,6 @@ class File:
         f = open(path, 'w')
         f.write(self.data_txt())
 
-
     def print_metadata(self):
         """ Print out select metadata"""
         print "Scan: ", self.log_dict['Comment'], "\n", \
@@ -543,12 +545,11 @@ class File:
     def plot(self):
         """ Plots data, and use column headers"""
         for i in range(self.fnsub):
-            plt.plot(self.x,self.sub[i].y)
+            plt.plot(self.x, self.sub[i].y)
 
         # add labels
         plt.xlabel(self.pr_xlabel)
         plt.ylabel(self.pr_ylabel)
-
 
     def debug_info(self):
         """
@@ -598,8 +599,7 @@ class File:
         else:
             print "Single set of y-values"
 
-
-        #print "There are ", self.fnpts, \
+        # print "There are ", self.fnpts, \
         #    " points between ", self.ffirst, \
         #    " and ", self.flast, \
         #    " in steps of ", self.pr_spacing

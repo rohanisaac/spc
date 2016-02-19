@@ -5,6 +5,8 @@ The SPC file format can store either single or multiple y-values, and the x-valu
 
 Based mainly on the Thermo Scientific SPC File SDK [1]
 
+Also may work on some versions of Shimadzu spc (not part of standard SPC specs)
+
 **May not work with all spc file formats**
 
 **Graphical converter not functional yet**
@@ -13,11 +15,11 @@ Based mainly on the Thermo Scientific SPC File SDK [1]
 
 As a standalone converter. Call the following from a terminal/command prompt
 
-	$ python convert %file_name1% %file_name2%
+	$ python convert.py %file_name1% %file_name2%
 
 Or convert an entire directory
 
-	$ python convert %dir_name%
+	$ python convert.py %dir_name%
 
 
 In a python script
@@ -62,7 +64,7 @@ In a python script
 	+ y
 
 ###Notes
-+ Used format specificiton [1]
++ Used format specification [1]
 + Loads entire file into memory
 + Data uses variable naming as in SPC.H
 + Class variables not in SPC.H prefixed with pr_
