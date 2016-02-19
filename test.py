@@ -23,4 +23,4 @@ for i in os.listdir(dpath):
                 print "--Failed reading reference data %s " % outfile
         except:
             print "-->Failed loading file: %s" % i
-print "Passed %i of %i tests " % (tpass, tfile)
+print "Passed %i of %i tests. " % (tpass, tfile)
