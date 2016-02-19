@@ -337,6 +337,23 @@ class File:
                 # print self.sub[i].y
                 # update positions
                 sub_pos = sub_end
+        elif ord(fversn) == 207:
+            print "Highly experimental format, may not work "
+            raw_data = content[10240:] # data starts here (maybe every time)
+            s_32 = chr(int('0',2))*32 # spacing between y and x data is atleast 0 bytes
+            s_8 = chr(int('0',2))*8 # zero double
+            dat_len = raw_data.find(s_32)
+            for i in range(dat_len, len(raw_data), 8):
+                # find first non zero double
+                if raw_data[i:i+8] != s_8:
+                    break
+            dat_siz = int(dat_len/8)
+            self.y = struct.unpack('<'+dat_siz*'d', raw_data[:dat_len])
+            self.x = struct.unpack('<'+dat_siz*'d', raw_data[i:i+dat_len])
+
+        else:
+            print "File type %s not supported yet. Please add issue. " % hex(ord(fversn))
+            self.content = content
 
     # ------------------------------------------------------------------------
     # Process other data
