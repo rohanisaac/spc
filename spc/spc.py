@@ -507,7 +507,10 @@ class File:
             dat = self.pr_xlabel + "\t" + self.pr_ylabel + "\n"
 
         if hasattr(self, 'txyxys'):
-            x = self.sub.x
+            if self.txyxys:
+                x = self.sub[0].x
+            else:
+                x = self.x
         else:
             x = self.x
 
