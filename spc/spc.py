@@ -499,6 +499,7 @@ class File:
         """ Returns x,y column data as a string variable, can be printed to
         standard output or fed to text file."""
 
+        dat = ''
         if hasattr(self, 'pr_xlabel') and hasattr(self, 'pr_ylabel'):
             dat = self.pr_xlabel + "\t" + self.pr_ylabel + "\n"
 
@@ -507,12 +508,18 @@ class File:
         else:
             x = self.x
 
-        for i in range(self.fnpts):
+        if hasattr(self, 'fnpts'):
+            l = self.fnpts
+        else:
+            l = len(self.x)
+        for i in range(l):
             dat = dat + str(x[i]) + "\t"
-            for j in range(self.fnsub):
-                dat = dat + str(self.sub[j].y[i]) + "\t"
+            if hasattr(self, 'fnsub'):
+                for j in range(self.fnsub):
+                    dat = dat + str(self.sub[j].y[i]) + "\t"
+            elif hasattr(self, 'y'):
+                dat = dat + str(self.y[i]) + "\t"
             dat = dat + "\n"
-
         return dat
 
     def write_file(self, path):
