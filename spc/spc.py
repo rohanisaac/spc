@@ -482,10 +482,10 @@ class File:
         """ Returns x,y column data as a string variable, can be printed to
         standard output or fed to text file."""
 
-        if hasattr(self, pr_xlabel) and hasattr(self, pr_ylabel):
+        if hasattr(self, 'pr_xlabel') and hasattr(self, 'pr_ylabel'):
             dat = self.pr_xlabel + "\t" + self.pr_ylabel + "\n"
 
-        if self.txyxys:
+        if hasattr(self, 'txyxys'):
             x = self.sub.x
         else:
             x = self.x
