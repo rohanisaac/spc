@@ -221,7 +221,7 @@ class File:
                 print "Offset to text", self.logtxto
                 # print "log stuff", self.logsizd, self.logsizm
                 log_end_pos = log_pos + self.logsizd
-                self.log_content = content[log_pos:log_end_pos].split('\r\n')
+                self.log_content = content[log_pos:log_end_pos].replace('\r', '').split('\n')
 
                 # print self.log_content
                 # split log data into dictionary
@@ -229,7 +229,7 @@ class File:
                 self.log_other = []  # put the rest into a list
                 for x in self.log_content:
                     if x.find('=') >= 0:
-                        key, value = x.split('=')
+                        key, value = x.split('=')[:2]
                         self.log_dict[key] = value
                     else:
                         self.log_other.append(x)
