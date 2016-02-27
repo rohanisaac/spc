@@ -22,17 +22,15 @@ Currently the library supports the following `fversn` bytes.
 ```python
 >>> import spc
 >>> f = spc.File('/Desktop/sample.spc')
-x-y(20)  <-- format string
+x-y(20)  # format string
+```
 
- -----------------------------------------------------------------------
 | format string | x-values                  | y-values                  |
 |---------------|---------------------------|---------------------------|
 | -xy(n)        | f.sub[0].x ... f.sub[n].x | f.sub[0].y ... f.sub[n].y |
 | x-y(n)        | f.x                       | f.sub[0].y ... f.sub[n].y |
 | gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
- -----------------------------------------------------------------------
 
- ---------------------------------------
 | metadata            | variable        |
 |---------------------|-----------------|
 | x-label             | f.xlabel        |
@@ -42,23 +40,19 @@ x-y(20)  <-- format string
 | Comment (raw)       | f.fcmnt         |
 | Log dictionay       | f.log_dict      |
 | Log (remaining)     | f.log_other     |
- ---------------------------------------
 
- ----------------
 | Functions      |
 |----------------|
 | f.output_txt() |
 | f.debug_info() |
 | f.plot()       |
 | f.write_file() |
- ----------------
-```
 
 ## File converter
 
 ### CLI: convert.py
 
-```bash
+```
 $ python convert.py --help
 usage: convert.py [-h] [-c | -t] filefolder [filefolder ...]
 
