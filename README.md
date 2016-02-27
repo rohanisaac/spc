@@ -12,7 +12,7 @@ Currently the library supports the following `fversn` bytes.
 
 | fversn | Description      | Support      | Notes                                                                                              |
 |--------|------------------|--------------|----------------------------------------------------------------------------------------------------|
-| 0x4B   | New format (LSB) | Good         | z-values are not accounted for in data_txt() and plot() commands, labels are not assigned properly |
+| 0x4B   | New format (LSB) | Good         | z-values are not accounted for in data_txt() and plot() commands |
 | 0x4C   | New format (MSB) | None         | need sample file to test                                                                           |
 | 0x4D   | Old format       | Limited      |                                                                                                    |
 | 0xCF   | SHIMADZU format  | Very limited | no metadata support, only tested on one file, no specifications                                    |
@@ -105,8 +105,6 @@ Currently the library supports the following `fversn` bytes.
 + Used format specification [1]
 + Loads entire file into memory
 + Data uses variable naming as in SPC.H
-+ (some) class variables not in SPC.H prefixed with pr_
-
 
 ##References
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
