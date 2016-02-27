@@ -10,14 +10,12 @@ Based mainly on the Thermo Scientific SPC File SDK [1]
 File versions are given by the second bit in the file, `fversn` in an SPC object.
 Currently the library supports the following `fversn` bytes.
 
-- `0x4B` : New (LSB) version, should have good support for all types
-	+ z-values are not accounted for in `data_txt()` and `plot()` commands
-	+ Labels are not assigned properly
-- `0x4C` : New (MSB) version, not yet supported, need sample file to test
-- `0x4D` : Old format, limited support
-- `0xCF` : SHIMADZU format, *highly experimental*
-	+ No metadata support
-	+ Only tested on one file
+| fversn | Description      | Support      | Notes                                                                                              |
+|--------|------------------|--------------|----------------------------------------------------------------------------------------------------|
+| 0x4B   | New format (LSB) | Good         | z-values are not accounted for in data_txt() and plot() commands, labels are not assigned properly |
+| 0x4C   | New format (MSB) | None         | need sample file to test                                                                           |
+| 0x4D   | Old format       | Limited      |                                                                                                    |
+| 0xCF   | SHIMADZU format  | Very limited | no metadata support, only tested on one file, no specifications                                    |
 
 # Object format
 
@@ -25,9 +23,12 @@ Currently the library supports the following `fversn` bytes.
 	>>> f = spc.File('/Desktop/sample.spc')
 	x-y(20)
 
-- `-xy(n)` : (multiple) x, y data pairs with x-data: `f.sub[0].x` ... `f.sub[n].x` with corresponding y-data `f.sub[0].y` ... `f.sub[n].y`
-- `x-y(n)` : x-data: `f.x` with corresponding (multiple) y-data `f.sub[0].y` ... `f.sub[n].y`
-- `gx-y(n)` : generated x-data: `f.x` with corresponding (multiple) y-data `f.sub[0].y` ... `f.sub[n].y`
+| format string | x-values                  | y-values                  |
+|---------------|---------------------------|---------------------------|
+| -xy(n)        | f.sub[0].x ... f.sub[n].x | f.sub[0].y ... f.sub[n].y |
+| x-y(n)        | f.x                       | f.sub[0].y ... f.sub[n].y |
+| gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
+
 
 ## Basic Usage
 
