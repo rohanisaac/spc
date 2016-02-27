@@ -8,7 +8,6 @@ author: Rohan Isaac
 from __future__ import division
 import struct
 import numpy as np
-import matplotlib.pyplot as plt
 
 from sub import subFile, subFileOld
 from global_fun import read_subheader, flag_bits
@@ -562,6 +561,7 @@ class File:
 
     def plot(self):
         """ Plots data, and use column headers"""
+        import matplotlib.pyplot as plt
         if self.dat_fmt.endswith('-xy'):
             for s in self.sub:
                 plt.plot(s.x, s.y)

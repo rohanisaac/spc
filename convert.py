@@ -30,27 +30,27 @@ def main():
         delim = ','
 
     flist = []
-    wpath = os.getcwd()
 
     # add all files from input file name
     for fn in args.filefolder:
-        ffn = os.path.join(wpath, fn)
+        ffn = os.path.abspath(fn)
         # or directories
         if os.path.isdir(ffn):
             for f in os.listdir(ffn):
                 flist.append(os.path.join(ffn, f))
         else:
-            flist.append(fn)
+            flist.append(ffn)
 
     # process files
     for fpath in flist:
-        # only a basic check
         if fpath.lower().endswith('spc'):
+
             foutp = fpath[:-4] + exten
             try:
                 print fpath,
                 f = spc.File(fpath)
                 f.write_file(foutp, delimiter=delim)
+                print 'Converted'
             except:
                 print 'Error processing %s' % fpath
         else:
