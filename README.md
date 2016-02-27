@@ -5,10 +5,10 @@ The SPC file format can store either single or multiple y-values, and the x-valu
 
 Based mainly on the Thermo Scientific SPC File SDK [1]
 
-## SPC versions supported
+## File versions supported
 
-SPC version are given by the second bit in the file, `fversn` in an SPC object.
-Currently the library supports the following `fversn`  
+File versions are given by the second bit in the file, `fversn` in an SPC object.
+Currently the library supports the following `fversn` bytes.
 
 - `0x4B` : New (LSB) version, should have good support for all types
 	+ z-values are not accounted for in `data_txt()` and `plot()` commands
@@ -19,14 +19,15 @@ Currently the library supports the following `fversn`
 	+ No metadata support
 	+ Only tested on one file
 
-# SPC object format
+# Object format
 
-	import spc
-	f = spc.File('/Desktop/sample.spc')
+	>>> import spc
+	>>> f = spc.File('/Desktop/sample.spc')
+	x-y(20)
 
 - `-xy(n)` : (multiple) x, y data pairs with x-data: `f.sub[0].x` ... `f.sub[n].x` with corresponding y-data `f.sub[0].y` ... `f.sub[n].y`
 - `x-y(n)` : x-data: `f.x` with corresponding (multiple) y-data `f.sub[0].y` ... `f.sub[n].y`
-- `gn-y(n)` : generated x-data: f.x` with corresponding (multiple) y-data `f.sub[0].y` ... `f.sub[n].y`
+- `gx-y(n)` : generated x-data: `f.x` with corresponding (multiple) y-data `f.sub[0].y` ... `f.sub[n].y`
 
 ## Basic Usage
 
