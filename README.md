@@ -21,14 +21,15 @@ Currently the library supports the following `fversn` bytes.
 
 	>>> import spc
 	>>> f = spc.File('/Desktop/sample.spc')
-	x-y(20)
+	x-y(20)  <-- format string
 
-| format string | x-values                  | y-values                  |
-|---------------|---------------------------|---------------------------|
-| -xy(n)        | f.sub[0].x ... f.sub[n].x | f.sub[0].y ... f.sub[n].y |
-| x-y(n)        | f.x                       | f.sub[0].y ... f.sub[n].y |
-| gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
-
+	 -----------------------------------------------------------------------
+	| format string | x-values                  | y-values                  |
+	|---------------|---------------------------|---------------------------|
+	| -xy(n)        | f.sub[0].x ... f.sub[n].x | f.sub[0].y ... f.sub[n].y |
+	| x-y(n)        | f.x                       | f.sub[0].y ... f.sub[n].y |
+	| gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
+	 -----------------------------------------------------------------------
 
 ## Basic Usage
 
@@ -86,32 +87,7 @@ In a python script
 + Used format specification [1]
 + Loads entire file into memory
 + Data uses variable naming as in SPC.H
-+ Class variables not in SPC.H prefixed with pr_
-
-An SPC trace file normally has these components in the following order:
-
-	SPCHDR		Main header (512 bytes in new format, 224 or 256 in old)
-      [X Values]	Optional FNPTS 32-bit floating X values if TXVALS flag
-	SUBHDR		Subfile Header for 1st subfile (32 bytes)
-	Y Values	FNPTS 32 or 16 bit fixed Y fractions scaled by exponent
-      [SUBHDR	]	Optional Subfile Header for 2nd subfile if TMULTI flag
-      [Y Values]	Optional FNPTS Y values for 2nd subfile if TMULTI flag
-	...		Additional subfiles if TMULTI flag (up to FNSUB total)
-      [Log Info]	Optional LOGSTC and log data if flogoff is non-zero
-
-However, files with the TXYXYS ftflgs flag set have these components:
-
-	SPCHDR		Main header (512 bytes in new format)
-	SUBHDR		Subfile Header for 1st subfile (32 bytes)
-	X Values	FNPTS 32-bit floating X values
-	Y Values	FNPTS 32 or 16 bit fixed Y fractions scaled by exponent
-      [SUBHDR	]	Subfile Header for 2nd subfile
-      [X Values]	FNPTS 32-bit floating X values for 2nd subfile
-      [Y Values]	FNPTS Y values for 2nd subfile
-	...		Additional subfiles (up to FNSUB total)
-      [Directory]	Optional FNSUB SSFSTC entries pointed to by FNPTS
-      [Log Info]	Optional LOGSTC and log data if flogoff is non-zero
-
++ (some) class variables not in SPC.H prefixed with pr_
 
 
 ##References
