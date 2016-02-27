@@ -1,7 +1,7 @@
 """
 Global functions, available to all classes
 
-@author: Rohan Isaac
+author: Rohan Isaac
 """
 
 import struct

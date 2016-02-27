@@ -1,7 +1,7 @@
 """
 SubFile class: loads each subfile data segment into object
 
-@author: Rohan Isaac
+author: Rohan Isaac
 """
 
 from __future__ import division
