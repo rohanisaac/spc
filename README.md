@@ -38,6 +38,7 @@ x-y(20)  # format string
 | z-label             | f.zlabel        |
 | Comment (formatted) | f.cmnt          |
 | Comment (raw)       | f.fcmnt         |
+| Experiment type     | f.exp_type      |
 | Log dictionay       | f.log_dict      |
 | Log (remaining)     | f.log_other     |
 

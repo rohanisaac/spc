@@ -57,6 +57,9 @@ class File:
 
         # extract first two bytes to determine file type version
         ftflg, fversn = struct.unpack('<cc', content[:2])
+        # --------------------------------------------
+        # NEW FORMAT (LSB)
+        # --------------------------------------------
         if fversn == chr(0x4b):
             # format: new LSB 1st
             # -------------
@@ -240,11 +243,17 @@ class File:
             self.set_labels()
             self.set_exp_type()
 
+        # --------------------------------------------
+        # NEW FORMAT (MSB)
+        # --------------------------------------------
         elif fversn == chr(0x4c):
             # new MSB 1st
             print "New MSB 1st, yet to be implemented"
             pass  # To be implemented
 
+        # --------------------------------------------
+        # OLD FORMAT
+        # --------------------------------------------
         elif fversn == chr(0x4d):
             # old format
             self.oftflgs, \
@@ -346,6 +355,9 @@ class File:
                 # update positions
                 sub_pos = sub_end
 
+        # --------------------------------------------
+        # SHIMADZU
+        # --------------------------------------------
         elif fversn == chr(0xcf):
             print "Highly experimental format, may not work "
             raw_data = content[10240:]  # data starts here (maybe every time)
@@ -484,7 +496,7 @@ class File:
                     self.zlabel = zl
 
     def set_exp_type(self):
-        """ Set the experiment type """
+        """ Sets the experiment type """
 
         fexper_op = ["General SPC",
                      "Gas Chromatogram",
@@ -501,7 +513,7 @@ class File:
                      "Atomic Spectrum",
                      "Chromatography Diode Array Spectra"]
 
-        self.pr_exp_type = fexper_op[self.fexper]
+        self.exp_type = fexper_op[self.fexper]
 
     # ------------------------------------------------------------------------
     # output
@@ -509,6 +521,18 @@ class File:
     def data_txt(self, delimiter='\t', newline='\n'):
         """ Returns x,y column data as a string variable, can be printed to
         standard output or fed to text file.
+
+        Arguments
+        ---------
+        delimiter: chr (default='\t')
+            delimiter character for column separation
+        newline: chr (default='\n')
+            newline character, may want to use '\r\n' for Windows based output
+
+        Example
+        -------
+        >>> f.data_txt(newline='\r\n')
+
         """
 
         dat = ''
@@ -539,10 +563,21 @@ class File:
         return dat
 
     def write_file(self, path, delimiter='\t', newline='\n'):
-        """ Output x,y data to text file tab seperated, with column headers
+        """ Output x,y data to text file tab seperated
+
         Arguments
         ---------
-        path: full path to output file including extension
+        path: str
+            full path to output file including extension
+        delimiter: chr (default='\t')
+            delimiter character for column separation
+        newline: chr (default='\n')
+            newline character, may want to use '\r\n' for Windows based output
+
+        Example
+        -------
+        >>> f.writefile('/Users/home/output.txt', delimiter=',')
+
         """
         with open(path, 'w') as f:
             f.write(self.data_txt(delimiter, newline))
@@ -556,7 +591,15 @@ class File:
             float(self.log_dict['Integration Time']), "s integration time"
 
     def plot(self):
-        """ Plots data, and use column headers"""
+        """ Plots data, and use column headers
+
+        Requires matplotlib installed
+
+        Example
+        -------
+        >>> f.plot()
+
+        """
         import matplotlib.pyplot as plt
         if self.dat_fmt.endswith('-xy'):
             for s in self.sub:
@@ -572,6 +615,11 @@ class File:
         """
         Interpret flags and header information to debug more about the file
         format
+
+        Example
+        -------
+
+        >>> f.debug_info()
         """
         print "\nDEBUG INFO"
         # Flag bits
