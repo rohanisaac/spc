@@ -5,11 +5,28 @@ The SPC file format can store either single or multiple y-values, and the x-valu
 
 Based mainly on the Thermo Scientific SPC File SDK [1]
 
-Also may work on some versions of Shimadzu spc (not part of standard SPC specs)
+## SPC versions supported
 
-**May not work with all spc file formats**
+SPC version are given by the second bit in the file, `fversn` in an SPC object.
+Currently the library supports the following `fversn`  
 
-**Graphical converter not functional yet**
+- `0x4B` : New (LSB) version, should have good support for all types
+	+ z-values are not accounted for in `data_txt()` and `plot()` commands
+	+ Labels are not assigned properly
+- `0x4C` : New (MSB) version, not yet supported, need sample file to test
+- `0x4D` : Old format, limited support
+- `0xCF` : SHIMADZU format, *highly experimental*
+	+ No metadata support
+	+ Only tested on one file
+
+# SPC object format
+
+	import spc
+	f = spc.File('/Desktop/sample.spc')
+
+- `-xy(n)` : (multiple) x, y data pairs with x-data: `f.sub[0].x` ... `f.sub[n].x` with corresponding y-data `f.sub[0].y` ... `f.sub[n].y`
+- `x-y(n)` : x-data: `f.x` with corresponding (multiple) y-data `f.sub[0].y` ... `f.sub[n].y`
+- `gn-y(n)` : generated x-data: f.x` with corresponding (multiple) y-data `f.sub[0].y` ... `f.sub[n].y`
 
 ## Basic Usage
 
