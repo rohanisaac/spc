@@ -76,10 +76,6 @@ Currently the library supports the following `fversn` bytes.
 3. Attempts to interpret x,y, and z labels, as well as scan type
 4. Member functions to output data in text, or plot using `matplotlib`
 
-### To Be implemented
-1. z-values
-2. Old data format
-
 ### Dependencies
 - numpy
 - matplotlib (for plotting)
