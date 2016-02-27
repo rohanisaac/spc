@@ -121,6 +121,7 @@ class File:
             self.fztype = ord(self.fztype)
 
             self.fexper = ord(self.fexper)
+            self.fcmnt = str(self.fcmnt)
 
             # Convert date time to appropriate format
             d = self.fdate
@@ -130,17 +131,9 @@ class File:
             self.hour = (d >> 6) % (2**5)
             self.minute = d % (2**6)
 
-            # null terminated string
-            tcmnt = str(self.fcmnt).split('\x00')
-
-            # if alternative labels give, will be here
-            if len(tcmnt) == 4:
-                self.oxlabel = tcmnt[1]
-                self.oylabel = tcmnt[2]
-                self.ozlabel = tcmnt[4]
-
-            # in all cases, first element will be the actual comment
-            self.fcmnt = tcmnt[0]
+            # null terminated string, replace null characters with spaces
+            # split and join to remove multiple spaces
+            self.cmnt = ' '.join((self.fcmnt.replace('\x00', ' ')).split())
 
             # figure out type of file
             if self.fnsub > 1:
@@ -417,14 +410,14 @@ class File:
                      "Hours"]
 
         if self.fxtype < 30:
-            self.pr_xlabel = fxtype_op[self.fxtype]
+            self.xlabel = fxtype_op[self.fxtype]
         else:
-            self.pr_xlabel = "Unknown"
+            self.xlabel = "Unknown"
 
         if self.fztype < 30:
-            self.pr_zlabel = fxtype_op[self.fztype]
+            self.zlabel = fxtype_op[self.fztype]
         else:
-            self.pr_zlabel = "Unknown"
+            self.zlabel = "Unknown"
 
         # --------------------------
         # units y-axis
@@ -464,11 +457,11 @@ class File:
                       "Emission"]
 
         if self.fytype < 27:
-            self.pr_ylabel = fytype_op[self.fytype]
+            self.ylabel = fytype_op[self.fytype]
         elif self.fytype > 127 and self.fytype < 132:
-            self.pr_ylabel = fytype_op2[self.fytype - 128]
+            self.ylabel = fytype_op2[self.fytype - 128]
         else:
-            self.pr_ylabel = "Unknown"
+            self.ylabel = "Unknown"
 
         # --------------------------
         # check if labels are included as text
@@ -477,15 +470,18 @@ class File:
         # split it based on 00 string
         # format x, y, z
         if self.talabs:
-            xl, yl, zl = self.fcatxt.split('\x00')[:3]
+            ll = self.fcatxt.split('\x00')
+            if len(ll) > 2:
+                # make sure there are enough items to extract from
+                xl, yl, zl = ll[:3]
 
-            # overwrite only if non zero
-            if len(xl) > 0:
-                self.pr_xlabel = xl
-            if len(yl) > 0:
-                self.pr_ylabel = yl
-            if len(zl) > 0:
-                self.pr_zlabel = zl
+                # overwrite only if non zero
+                if len(xl) > 0:
+                    self.pr_xlabel = xl
+                if len(yl) > 0:
+                    self.pr_ylabel = yl
+                if len(zl) > 0:
+                    self.pr_zlabel = zl
 
     def set_exp_type(self):
         """ Set the experiment type """
