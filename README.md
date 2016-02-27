@@ -19,55 +19,59 @@ Currently the library supports the following `fversn` bytes.
 
 ## Object format
 
-	>>> import spc
-	>>> f = spc.File('/Desktop/sample.spc')
-	x-y(20)  <-- format string
+```python
+>>> import spc
+>>> f = spc.File('/Desktop/sample.spc')
+x-y(20)  <-- format string
 
-	 -----------------------------------------------------------------------
-	| format string | x-values                  | y-values                  |
-	|---------------|---------------------------|---------------------------|
-	| -xy(n)        | f.sub[0].x ... f.sub[n].x | f.sub[0].y ... f.sub[n].y |
-	| x-y(n)        | f.x                       | f.sub[0].y ... f.sub[n].y |
-	| gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
-	 -----------------------------------------------------------------------
+ -----------------------------------------------------------------------
+| format string | x-values                  | y-values                  |
+|---------------|---------------------------|---------------------------|
+| -xy(n)        | f.sub[0].x ... f.sub[n].x | f.sub[0].y ... f.sub[n].y |
+| x-y(n)        | f.x                       | f.sub[0].y ... f.sub[n].y |
+| gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
+ -----------------------------------------------------------------------
 
-	 ---------------------------------------
-	| metadata            | variable        |
-	|---------------------|-----------------|
-	| x-label             | f.xlabel        |
-	| y-label             | f.ylabel        |
-	| z-label             | f.zlabel        |
-	| Comment (formatted) | f.cmnt          |
-	| Comment (raw)       | f.fcmnt         |
-	| Log dictionay       | f.log_dict      |
-	| Log (remaining)     | f.log_other     |
-	 ---------------------------------------
+ ---------------------------------------
+| metadata            | variable        |
+|---------------------|-----------------|
+| x-label             | f.xlabel        |
+| y-label             | f.ylabel        |
+| z-label             | f.zlabel        |
+| Comment (formatted) | f.cmnt          |
+| Comment (raw)       | f.fcmnt         |
+| Log dictionay       | f.log_dict      |
+| Log (remaining)     | f.log_other     |
+ ---------------------------------------
 
-	 ----------------
-	| Functions      |
-	|----------------|
-	| f.output_txt() |
-	| f.debug_info() |
-	| f.plot()       |
-	| f.write_file() |
-	 ----------------
+ ----------------
+| Functions      |
+|----------------|
+| f.output_txt() |
+| f.debug_info() |
+| f.plot()       |
+| f.write_file() |
+ ----------------
+```
 
 ## File converter
 
 ### CLI: convert.py
 
-	$ python convert.py --help
-	usage: convert.py [-h] [-c | -t] filefolder [filefolder ...]
+```bash
+$ python convert.py --help
+usage: convert.py [-h] [-c | -t] filefolder [filefolder ...]
 
-	Converts *.spc binary files to text using the spc module
+Converts *.spc binary files to text using the spc module
 
-	positional arguments:
-	  filefolder  Input *.spc files or directory
+positional arguments:
+  filefolder  Input *.spc files or directory
 
-	optional arguments:
-	  -h, --help  show this help message and exit
-	  -c, --csv   Comma separated output file (.csv) [default]
-	  -t, --txt   Tab separated output file (.txt)
+optional arguments:
+  -h, --help  show this help message and exit
+  -c, --csv   Comma separated output file (.csv) [default]
+  -t, --txt   Tab separated output file (.txt)
+```
 
 #### Examples
 
@@ -78,17 +82,24 @@ Currently the library supports the following `fversn` bytes.
 
 ### GUI: convert_gui.py
 
-**Requires [wxPython](http://www.wxpython.org/download.php) and [Gooey](https://github.com/chriskiehl/Gooey) (`$ pip install gooey`) **
+Requires [wxPython](http://www.wxpython.org/download.php) and [Gooey](https://github.com/chriskiehl/Gooey) (`pip install gooey`)
+
+Only works on a single folder at a time.
+
+![Graphical interface based on Gooey](images/gui.png)
+
 
 ## General use
 
-	# import file to python object
-	>>> import spc
-	>>> f = spc.File('/path/to/file.spc')
-	>>> f.debug_info() 	# extract info from header metadata
-	>>> f.output_txt()  # output file data as columns
-	>>> f.plot()  # plot using matplotlib
-	>>> f.__dict__  # view all object contents
+```python
+# import file to python object
+import spc
+f = spc.File('/path/to/file.spc')
+f.debug_info() 	# extract info from header metadata
+f.output_txt()  # output file data as columns
+f.plot()  # plot using matplotlib
+f.__dict__  # view all object contents
+```
 
 ## Features
 1. Extracts header information into object members
@@ -101,10 +112,10 @@ Currently the library supports the following `fversn` bytes.
 - numpy
 - matplotlib (for plotting)
 
-###Notes
+### Notes
 + Used format specification [1]
 + Loads entire file into memory
 + Data uses variable naming as in SPC.H
 
-##References
+## References
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
