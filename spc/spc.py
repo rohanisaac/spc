@@ -477,11 +477,11 @@ class File:
 
                 # overwrite only if non zero
                 if len(xl) > 0:
-                    self.pr_xlabel = xl
+                    self.xlabel = xl
                 if len(yl) > 0:
-                    self.pr_ylabel = yl
+                    self.ylabel = yl
                 if len(zl) > 0:
-                    self.pr_zlabel = zl
+                    self.zlabel = zl
 
     def set_exp_type(self):
         """ Set the experiment type """

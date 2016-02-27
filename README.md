@@ -31,6 +31,16 @@ Currently the library supports the following `fversn` bytes.
 	| gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
 	 -----------------------------------------------------------------------
 
+	 --------------------------------
+	| metadata            | variable |
+	|---------------------|----------|
+	| x-label             | f.xlabel |
+	| y-label             | f.ylabel |
+	| z-label             | f.zlabel |
+	| Comment (formatted) | f.cmnt   |
+	| Comment (raw)       | f.fcmnt  |
+	 --------------------------------
+
 ## File converter
 
 ### CLI: convert.py
