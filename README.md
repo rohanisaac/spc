@@ -31,31 +31,43 @@ Currently the library supports the following `fversn` bytes.
 	| gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
 	 -----------------------------------------------------------------------
 
-## Basic Usage
+## File converter
 
-As a standalone converter. Call the following from a terminal/command prompt
+### CLI: convert.py
 
-	$ python convert.py %file_name1% %file_name2%
+	$ python convert.py --help
+	usage: convert.py [-h] [-c | -t] filefolder [filefolder ...]
 
-Or convert an entire directory
+	Converts \*.spc binary files to text using the spc module
 
-	$ python convert.py %dir_name%
+	positional arguments:
+	  filefolder  Input \*.spc files or directory
 
+	optional arguments:
+	  -h, --help  show this help message and exit
+	  -c, --csv   Comma separated output file (.csv) [default]
+	  -t, --txt   Tab separated output file (.txt)
 
-In a python script
+#### Examples
+
+	Convert file1.spc and file2.spc to file1.txt and file2.txt (tab delimited)
+	$ python convert.py file1.spc file2.spc -t
+	Convert the spc files in spc_dir to .csv files
+	$ python convert.py spc_dir
+
+### GUI: convert_gui.py
+
+**Requires [wxPython](http://www.wxpython.org/download.php) and [Gooey](https://github.com/chriskiehl/Gooey) (`$ pip install gooey`) **
+
+## General use
 
 	# import file to python object
-	import spc
-	ftir_1 = spc.File('/path/to/ftir.spc')
-
-	# extract info from header metadata
-	ftir_1.debug_info()
-
-	# output file data as columns (tab seperated)
-	ftir_1.output_txt()
-
-	# plot using matplotlib
-	ftir_1.plot()
+	>>> import spc
+	>>> f = spc.File('/path/to/file.spc')
+	>>> f.debug_info() 	# extract info from header metadata
+	>>> f.output_txt()  # output file data as columns
+	>>> f.plot()  # plot using matplotlib
+	>>> f.__dict__  # view all object contents
 
 ## Features
 1. Extracts header information into object members
