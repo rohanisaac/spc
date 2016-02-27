@@ -31,15 +31,26 @@ Currently the library supports the following `fversn` bytes.
 	| gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
 	 -----------------------------------------------------------------------
 
-	 --------------------------------
-	| metadata            | variable |
-	|---------------------|----------|
-	| x-label             | f.xlabel |
-	| y-label             | f.ylabel |
-	| z-label             | f.zlabel |
-	| Comment (formatted) | f.cmnt   |
-	| Comment (raw)       | f.fcmnt  |
-	 --------------------------------
+	 ---------------------------------------
+	| metadata            | variable        |
+	|---------------------|-----------------|
+	| x-label             | f.xlabel        |
+	| y-label             | f.ylabel        |
+	| z-label             | f.zlabel        |
+	| Comment (formatted) | f.cmnt          |
+	| Comment (raw)       | f.fcmnt         |
+	| Log dictionay       | f.log_dict      |
+	| Log (remaining)     | f.log_other     |
+	 ---------------------------------------
+
+	 ----------------
+	| Functions      |
+	|----------------|
+	| f.output_txt() |
+	| f.debug_info() |
+	| f.plot()       |
+	| f.write_file() |
+	 ----------------
 
 ## File converter
 
@@ -48,10 +59,10 @@ Currently the library supports the following `fversn` bytes.
 	$ python convert.py --help
 	usage: convert.py [-h] [-c | -t] filefolder [filefolder ...]
 
-	Converts \*.spc binary files to text using the spc module
+	Converts *.spc binary files to text using the spc module
 
 	positional arguments:
-	  filefolder  Input \*.spc files or directory
+	  filefolder  Input *.spc files or directory
 
 	optional arguments:
 	  -h, --help  show this help message and exit
@@ -89,17 +100,6 @@ Currently the library supports the following `fversn` bytes.
 ### Dependencies
 - numpy
 - matplotlib (for plotting)
-
-### Module Organization
-- class File (spc.py)
-	+ output_txt()
-	+ debug_info()
-	+ plot()
-	+ x
-	+ log_data
-- class subFile (sub.py)
-	+ (optional) x
-	+ y
 
 ###Notes
 + Used format specification [1]
