@@ -5,6 +5,9 @@ tfile = 0
 tpass = 0
 
 dpath = os.path.join(os.path.dirname(__file__), 'test_data')
+mfile = []
+rfile = []
+lfile = []
 for i in os.listdir(dpath):
     if i[-3:].lower() == 'spc':
         try:
@@ -19,8 +22,14 @@ for i in os.listdir(dpath):
                         tpass += 1
                     else:
                         print "-->Fail"
+                        mfile.append(i)
             except:
                 print "--Failed reading reference data %s " % outfile
+                rfile.append(i)
         except:
             print "-->Failed loading file: %s" % i
+            lfile.append(i)
 print "Passed %i of %i tests. " % (tpass, tfile)
+print "Did not match ref file: ", mfile
+print "Did not have ref file: ", rfile
+print "Did not load file: ", lfile

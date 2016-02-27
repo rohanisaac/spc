@@ -39,78 +39,65 @@ class subFile:
             self.subresv \
             = read_subheader(data[:32])
 
-        # print read_subheader(data[:32])
+        # header is 32 bytes
         y_dat_pos = 32
 
-        # choose between global stuff and local stuff
-        # not very accurate for s_xy
-        if self.subnpts > 0:  # probably should be > 0
+        if txyxy:
+            # only reason to use subnpts if x data is here
             pts = self.subnpts
-            print "Using local subpoints", pts
         else:
             pts = fnpts
-            print "Using global subpoints", pts
 
-        # if xvalues exists, y values should be the same size (need for s_xy)
-        if fnpts > 0:
-            pts = fnpts
-            print "Using global subpoints", pts
-
-        yfloat = False
-        if self.subexp == 128:
-            print "Floating y-values"
-            yfloat = True
-
-        if self.subexp > 0 and self.subexp < 128:
+        # Choosing exponent
+        # -----------------
+        if -128 < self.subexp < 128:
+            # if subfile has reasonable exponent, use it
             exp = self.subexp
-            print "Using local exponent", exp
-        else:
+        elif -128 < fexp < 128:
+            # if global exponent is reasonable, use it
             exp = fexp
-            print "Using global exponent", exp
+        else:
+            # all else fails, set exp 0
+            exp = 0
 
         # --------------------------
         # if x_data present
         # --------------------------
-
         if txyxy:
-            x_str = 'i'*pts
-            # print "Len of str", struct.calcsize(x_str)
+            x_str = '<' + 'i' * pts
             x_dat_pos = y_dat_pos
-            x_dat_end = x_dat_pos + (4*pts)
+            x_dat_end = x_dat_pos + (4 * pts)
 
             x_raw = np.array(struct.unpack(x_str, data[x_dat_pos:x_dat_end]))
-            self.x = (2**(exp-32))*x_raw
-            print "Extracted x-data"
+            self.x = (2**(exp - 32)) * x_raw
 
             y_dat_pos = x_dat_end
 
         # --------------------------
         # extract y_data
         # --------------------------
-
-        if yfloat:
-            y_dat_str = 'f'*pts
-        else:
-            y_dat_str = 'i'*pts
-        y_dat_end = y_dat_pos + (4*pts)
-
-        y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
-        # print "y_data from ", y_dat_pos, " to ", y_dat_end
-
-        if yfloat:
+        y_dat_str = '<'
+        if self.subexp == 128:
+            # Floating y-values
+            y_dat_str += 'f' * pts
+            y_dat_end = y_dat_pos + (4 * pts)
+            y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
             self.y = y_raw
-            print "Extracted floating y data"
         else:
-            self.y = (2**(exp-32))*y_raw
-            print "Extracted integer y-data"
-            self.y_int = self.y.astype(int)
-
-        # print self.y
-
-        # do stuff if subflgs
-        # if 1 subfile changed
-        # if 8 if peak table should not be used
-        # if 128 if subfile modified by arithmetic
+            # integer format
+            lydata = len(data) - y_dat_pos
+            if int(lydata / pts) == 4:
+                # 32 bit, using size of subheader to figure out data type
+                y_dat_str += 'i' * pts
+                y_dat_end = y_dat_pos + (4 * pts)
+                y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
+                self.y = (2**(exp - 32)) * y_raw
+            else:
+                # 16 bit
+                y_dat_str += 'h' * pts  # short
+                y_dat_end = y_dat_pos + (2 * pts)
+                y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
+                self.y = (2**(exp - 32)) * y_raw
 
 
 class subFileOld:
@@ -148,41 +135,41 @@ class subFileOld:
         # not very accurate for s_xy
         if self.subnpts > 0:  # probably should be > 0
             pts = self.subnpts
-            print "Using local subpoints", pts
+            #print "Using local subpoints", pts
         else:
             pts = fnpts
-            print "Using global subpoints", pts
+            #print "Using global subpoints", pts
 
         # if xvalues exists, y values should be the same size (need for s_xy)
         if fnpts > 0:
             pts = fnpts
-            print "Using global subpoints", pts
+            #print "Using global subpoints", pts
 
         yfloat = False
         if self.subexp == 128:
-            print "Floating y-values"
+            #print "Floating y-values"
             yfloat = True
 
         if self.subexp > 0 and self.subexp < 128:
             exp = self.subexp
-            print "Using local exponent", exp
+            #print "Using local exponent", exp
         else:
             exp = fexp
-            print "Using global exponent", exp
+            #print "Using global exponent", exp
 
         # --------------------------
         # if x_data present
         # --------------------------
 
         if txyxy:
-            x_str = 'i'*pts
+            x_str = 'i' * pts
             # print "Len of str", struct.calcsize(x_str)
             x_dat_pos = y_dat_pos
-            x_dat_end = x_dat_pos + (4*pts)
+            x_dat_end = x_dat_pos + (4 * pts)
 
             x_raw = np.array(struct.unpack(x_str, data[x_dat_pos:x_dat_end]))
-            self.x = (2**(exp-32))*x_raw
-            print "Extracted x-data"
+            self.x = (2**(exp - 32)) * x_raw
+            #print "Extracted x-data"
 
             y_dat_pos = x_dat_end
 
@@ -194,25 +181,26 @@ class subFileOld:
         # integers, swap 1st and 2nd byte, as well as 3rd and 4th byte to get
         # the final integer then scale by the exponent
         if yfloat:
-            y_dat_str = '<' + 'f'*pts
+            y_dat_str = '<' + 'f' * pts
         else:
-            y_dat_str = '>' + 'B'*4*pts
-        y_dat_end = y_dat_pos + (4*pts)
+            y_dat_str = '>' + 'B' * 4 * pts
+        y_dat_end = y_dat_pos + (4 * pts)
 
         y_raw = struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end])
 
         if yfloat:
             self.y = y_raw
-            print "Extracted floating y data"
+            #print "Extracted floating y data"
         else:
-            print "Extracted integer y-data"
+            #print "Extracted integer y-data"
             y_int = []
             for i in range(0, len(y_raw), 4):
                 y_int.append((
-                    y_raw[i+1]*(256**3) + y_raw[i]*(256**2) +
-                    y_raw[i+3]*(256) + y_raw[i+2]))
+                    y_raw[i + 1] * (256**3) + y_raw[i] * (256**2) +
+                    y_raw[i + 3] * (256) + y_raw[i + 2]))
             # fix negative values by casting to np.int32
-            self.y_int = np.int32(y_int) / (2**(32-exp))
+            self.y_int = np.int32(y_int) / (2**(32 - exp))
+            self.y = y_int
         # fix negative values
         # print self.y
 

@@ -39,11 +39,8 @@ def read_subheader(subheader):
     subhead_str = "<cchfffiif4s"
     items = struct.unpack(subhead_str, subheader)
 
-    item_cpy = []
-    item_cpy.append(ord(items[0]))
-    item_cpy.append(ord(items[1]))
-    for i in range(2, 10):
-        item_cpy.append(items[i])
+    item_cpy = [ord(i) for i in items[:2]]
+    item_cpy += items[2:]
 
     return item_cpy
 

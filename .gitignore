@@ -1,3 +1,8 @@
+# test files
+test_data/
+gen_ref.py
+test.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
