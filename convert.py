@@ -1,60 +1,60 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Command line utility to convert .SPC files to .TXT
 
-@author: Rohan Isaac
+author: Rohan Isaac
 """
-
-import sys
+import argparse
 import os
-import glob
 import spc
-
-man = """ USAGE: \n $ python convert %file_name1% %file_name2% \n OR \n \
-$ python convert $%dir_name% \n\n EXAMPLE: python convert """
-
-
-def convert(filename, over):
-    of = filename+".txt"
-    print "Converting", filename, " to ", of
-    if os.path.exists(of):
-        if over:
-            print "overwriting existing file"
-            writef(filename, of)
-        else:
-            print "File already exists. Skipping. If want to overwrite,pass -o"
-    else:
-        writef(filename, of)
-
-
-def writef(inf, of):
-    f = spc.File(inf)
-    f.write_file(of)
 
 
 def main():
-    overw = False
-    if len(sys.argv) < 2:
-        print "No arguments passed"
-        print man
+    desc = 'Converts *.spc binary files to text using the spc module'
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('filefolder', nargs='+', help='Input *.spc files or directory')
+    fformat = parser.add_mutually_exclusive_group()
+    fformat.add_argument('-c', '--csv', help='Comma separated output file (.csv) [default]',
+                         action='store_true')
+    fformat.add_argument('-t', '--txt', help='Tab separated output file (.txt)',
+                         action='store_true')
+    args = parser.parse_args()
 
+    if args.txt:
+        exten = '.txt'
+        delim = '\t'
     else:
-        if "-o" in sys.argv:
-            overw = True
-            sys.argv.remove("-o")
+        # defaults
+        exten = '.csv'
+        delim = ','
 
-        print "Attempting to convert the following files: "
-        for path in sys.argv[1:]:
-            print path
-            if os.path.isdir(path):
-                print "Do stuff if dir"
-                for filename in glob.glob(path + "/*.[sS][pP][cC]"):
-                    convert(filename, overw)
-            else:
-                if os.path.exists(path):
-                    convert(path, overw)
-                else:
-                    print path, " does not exist on disk"
+    flist = []
+    wpath = os.getcwd()
 
-if __name__ == "__main__":
+    # add all files from input file name
+    for fn in args.filefolder:
+        ffn = os.path.join(wpath, fn)
+        # or directories
+        if os.path.isdir(ffn):
+            for f in os.listdir(ffn):
+                flist.append(os.path.join(ffn, f))
+        else:
+            flist.append(fn)
+
+    # process files
+    for fpath in flist:
+        # only a basic check
+        if fpath.lower().endswith('spc'):
+            foutp = fpath[:-4] + exten
+            try:
+                print fpath,
+                f = spc.File(fpath)
+                f.write_file(foutp, delimiter=delim)
+            except:
+                print 'Error processing %s' % fpath
+        else:
+            print '%s not spc file, skipping' % fpath
+
+if __name__ == '__main__':
     main()

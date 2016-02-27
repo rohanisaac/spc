@@ -511,7 +511,7 @@ class File:
     # ------------------------------------------------------------------------
     # output
     # ------------------------------------------------------------------------
-    def data_txt(self, datfmt='xy', delimiter='\t', newline='\n'):
+    def data_txt(self, delimiter='\t', newline='\n'):
         """ Returns x,y column data as a string variable, can be printed to
         standard output or fed to text file.
         """
@@ -543,46 +543,14 @@ class File:
                     dat += newline
         return dat
 
-        if datfmt == 'xyy':
-            pass
-        if datfmt == 'xyxy':
-            pass
-        if hasattr(self, 'txvals'):
-            if self.txvals:
-                for i in self.sub:
-                    for j in range(i.subnpts):
-                        dat += str(i.x[j]) + '\t' + str(i.y[j]) + '\n'
-                return dat
-            else:
-                if hasattr(self, 'pr_xlabel') and hasattr(self, 'pr_ylabel'):
-                    dat = self.pr_xlabel + "\t" + self.pr_ylabel + "\n"
-
-                if hasattr(self, 'txyxys'):
-                    if self.txyxys:
-                        x = self.sub[0].x
-                    else:
-                        x = self.x
-                else:
-                    x = self.x
-
-                for i in range(len(x)):
-                    dat = dat + str(x[i]) + "\t"
-                    if hasattr(self, 'fnsub'):
-                        for j in range(self.fnsub):
-                            dat = dat + str(self.sub[j].y[i]) + "\t"
-                    elif hasattr(self, 'y'):
-                        dat = dat + str(self.y[i]) + "\t"
-                    dat = dat + "\n"
-                return dat
-
-    def write_file(self, path):
+    def write_file(self, path, delimiter='\t', newline='\n'):
         """ Output x,y data to text file tab seperated, with column headers
         Arguments
         ---------
         path: full path to output file including extension
         """
-        f = open(path, 'w')
-        f.write(self.data_txt())
+        with open(path, 'w') as f:
+            f.write(self.data_txt(delimiter, newline))
 
     def print_metadata(self):
         """ Print out select metadata"""
@@ -603,7 +571,6 @@ class File:
             for s in self.sub:
                 plt.plot(x, s.y)
             return
-
 
     def debug_info(self):
         """

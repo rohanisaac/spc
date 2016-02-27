@@ -17,7 +17,7 @@ Currently the library supports the following `fversn` bytes.
 | 0x4D   | Old format       | Limited      |                                                                                                    |
 | 0xCF   | SHIMADZU format  | Very limited | no metadata support, only tested on one file, no specifications                                    |
 
-# Object format
+## Object format
 
 	>>> import spc
 	>>> f = spc.File('/Desktop/sample.spc')
@@ -64,15 +64,15 @@ In a python script
 3. Attempts to interpret x,y, and z labels, as well as scan type
 4. Member functions to output data in text, or plot using `matplotlib`
 
-###To Be implemented
+### To Be implemented
 1. z-values
 2. Old data format
 
-###Dependencies
+### Dependencies
 - numpy
 - matplotlib (for plotting)
 
-###Module Organization
+### Module Organization
 - class File (spc.py)
 	+ output_txt()
 	+ debug_info()
