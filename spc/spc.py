@@ -296,6 +296,7 @@ class File:
             self.olast = float(self.olast)
 
             # Date information
+            # !! to fix !!
             # Year collected (0=no date/time) - MSB 4 bits are Z type
 
             # extracted as characters, using ord
@@ -304,18 +305,16 @@ class File:
             self.ohour = ord(self.ohour)
             self.ominute = ord(self.ominute)
 
-            # number of scans (?subfiles?)
+            # number of scans (? subfiles sometimes ?)
             self.onscans = int(self.onscans)
 
             # null terminated strings
             self.ores = str(self.ores).split('\x00')[0]
             self.ocmnt = str(self.ocmnt).split('\x00')[0]
 
-            # can't seem to find number of subfiles
-            # these are options that the class needs, not part of spc specs
-            self.dat_fmt = 'x-y'
-
+            # can it have separate x values ?
             self.x = np.linspace(self.ofirst, self.olast, num=self.onpts)
+
             # make a list of subfiles
             self.sub = []
 
@@ -326,52 +325,38 @@ class File:
             # in the old format we don't know how many subfiles to expect,
             # just looping till we run out
             i = 0
-            #for i in range(self.fnsub):
             while True:
                 try:
-                    print "\nSUBFILE", i, "\n----------"
-                    print "start pos", sub_pos
-
-                    # figure out its size
+                    # read in subheader
                     subhead_lst = read_subheader(content[sub_pos:sub_pos + self.subhead_siz])
 
-                    print subhead_lst
                     if subhead_lst[6] > 0:
+                        # default to subfile points, unless it is zero
                         pts = subhead_lst[6]
-                        print "Using subfile points"
                     else:
                         pts = self.onpts
-                        print "Using global subpoints"
 
-                    # if xvalues already set, should use that number of points
-                    # only necessary for f_xy.spc
-                    if self.onpts > 0:
-                        pts = self.onpts
-                        print "Using global subpoints"
-
-                    print "Points in subfile", pts
+                    # figure out size of subheader
                     dat_siz = (4 * pts)
-
-                    print "Data size", dat_siz
-
                     sub_end = sub_pos + self.subhead_siz + dat_siz
 
-                    print "sub_end", sub_end
-
                     # read into object, add to list
-
-                    print sub_pos, sub_end, self.onpts, self.oexp
                     self.sub.append(subFileOld(
                         content[sub_pos:sub_end],
                         self.onpts, self.oexp, False))
-                    # print self.sub[i].y
-                    # update positions
+
+                    # update next subfile postion, and index
                     sub_pos = sub_end
 
                     i += 1
                 except:
+                    # zero indexed, set the total number of subfile
                     self.fnsub = i + 1
                     break
+
+            # assuming it can't have separate x values
+            self.dat_fmt = 'gx-y'
+            print '{}({})'.format(self.dat_fmt, self.fnsub)
 
         # --------------------------------------------
         # SHIMADZU
@@ -609,7 +594,7 @@ class File:
             float(self.log_dict['Integration Time']), "s integration time"
 
     def plot(self):
-        """ Plots data, and use column headers
+        """ Plots data, and use column headers, returns figure object plotted
 
         Requires matplotlib installed
 
@@ -622,12 +607,12 @@ class File:
         if self.dat_fmt.endswith('-xy'):
             for s in self.sub:
                 plt.plot(s.x, s.y)
-            return
+            return plt.gcf()
         else:
             x = self.x
             for s in self.sub:
                 plt.plot(x, s.y)
-            return
+            return plt.gcf()
 
     def debug_info(self):
         """

@@ -120,6 +120,7 @@ f.__dict__  # view all object contents
 + Better debug info that works all the time
 + Year info for old data
 + Fix exponent in 16 bit format
++ Add labels to plots and text output
 
 ## References
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
