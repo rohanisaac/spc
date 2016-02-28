@@ -112,5 +112,14 @@ f.__dict__  # view all object contents
 + Loads entire file into memory
 + Data uses variable naming as in SPC.H
 
+### Todo
++ Use flag for 16bit and test
++ Check struct string (`<` vs others, using signed vs. unsigned ints)
++ Remove repetitions in sub class
++ Remove multiple definitions of flag bits
++ Better debug info that works all the time
++ Year info for old data
++ Fix exponent in 16 bit format
+
 ## References
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.

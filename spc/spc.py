@@ -55,12 +55,13 @@ class File:
             content = fin.read()
             # print "Read raw data"
 
+        self.length = len(content)
         # extract first two bytes to determine file type version
-        ftflg, fversn = struct.unpack('<cc', content[:2])
+        self.ftflg, self.fversn = struct.unpack('<cc', content[:2])
         # --------------------------------------------
         # NEW FORMAT (LSB)
         # --------------------------------------------
-        if fversn == chr(0x4b):
+        if self.fversn == chr(0x4b):
             # format: new LSB 1st
             # -------------
             # unpack header
@@ -246,7 +247,7 @@ class File:
         # --------------------------------------------
         # NEW FORMAT (MSB)
         # --------------------------------------------
-        elif fversn == chr(0x4c):
+        elif self.fversn == chr(0x4c):
             # new MSB 1st
             print "New MSB 1st, yet to be implemented"
             pass  # To be implemented
@@ -254,7 +255,7 @@ class File:
         # --------------------------------------------
         # OLD FORMAT
         # --------------------------------------------
-        elif fversn == chr(0x4d):
+        elif self.fversn == chr(0x4d):
             # old format
             self.oftflgs, \
                 self.oversn, \
@@ -278,18 +279,30 @@ class File:
                 self.osubh1 = struct.unpack(self.old_head_str,
                                             content[:self.old_head_siz])
 
+            # Flag bits (assuming same)
+            self.tsprec, \
+                self.tcgram, \
+                self.tmulti, \
+                self.trandm, \
+                self.tordrd, \
+                self.talabs, \
+                self.txyxys, \
+                self.txvals = flag_bits(self.oftflgs)[::-1]
+
             # fix data types
             self.oexp = int(self.oexp)
-            self.onpts = float(self.onpts)
+            self.onpts = int(self.onpts)  # can't have floating num of pts
             self.ofirst = float(self.ofirst)
             self.olast = float(self.olast)
 
             # Date information
-            """self.oyear = int(self.oyear) # need to fix
-            self.omonth = int(self.omonth)
-            self.oday = int(self.oday)
-            self.ohour = int(self.ohour)
-            self.ominute = int(self.ominute)"""
+            # Year collected (0=no date/time) - MSB 4 bits are Z type
+
+            # extracted as characters, using ord
+            self.omonth = ord(self.omonth)
+            self.oday = ord(self.oday)
+            self.ohour = ord(self.ohour)
+            self.ominute = ord(self.ominute)
 
             # number of scans (?subfiles?)
             self.onscans = int(self.onscans)
@@ -298,67 +311,72 @@ class File:
             self.ores = str(self.ores).split('\x00')[0]
             self.ocmnt = str(self.ocmnt).split('\x00')[0]
 
-            # !!! only works for single subfile as of now
-            # forcing 1 file
-            self.onsub = 1
-
-            # need to force some things so the rest of it works
+            # can't seem to find number of subfiles
+            # these are options that the class needs, not part of spc specs
             self.dat_fmt = 'x-y'
-            self.fnsub = 1
+
             self.x = np.linspace(self.ofirst, self.olast, num=self.onpts)
             # make a list of subfiles
             self.sub = []
 
-            sub_pos = self.old_head_siz
-
-            # make onpts integer
-            self.onpts = int(self.onpts)
+            # already have subheader from main header, retrace steps
+            sub_pos = self.old_head_siz - self.subhead_siz
 
             # for each subfile
-            for i in range(self.onsub):
-                print "\nSUBFILE", i, "\n----------"
-                print "start pos", sub_pos
+            # in the old format we don't know how many subfiles to expect,
+            # just looping till we run out
+            i = 0
+            #for i in range(self.fnsub):
+            while True:
+                try:
+                    print "\nSUBFILE", i, "\n----------"
+                    print "start pos", sub_pos
 
-                # figure out its size
-                subhead_lst = read_subheader(self.osubh1)
+                    # figure out its size
+                    subhead_lst = read_subheader(content[sub_pos:sub_pos + self.subhead_siz])
 
-                print subhead_lst
-                if subhead_lst[6] > 0:
-                    pts = subhead_lst[6]
-                    print "Using subfile points"
-                else:
-                    pts = self.onpts
-                    print "Using global subpoints"
+                    print subhead_lst
+                    if subhead_lst[6] > 0:
+                        pts = subhead_lst[6]
+                        print "Using subfile points"
+                    else:
+                        pts = self.onpts
+                        print "Using global subpoints"
 
-                # if xvalues already set, should use that number of points
-                # only necessary for f_xy.spc
-                if self.onpts > 0:
-                    pts = self.onpts
-                    print "Using global subpoints"
+                    # if xvalues already set, should use that number of points
+                    # only necessary for f_xy.spc
+                    if self.onpts > 0:
+                        pts = self.onpts
+                        print "Using global subpoints"
 
-                print "Points in subfile", pts
-                dat_siz = (4 * pts)
+                    print "Points in subfile", pts
+                    dat_siz = (4 * pts)
 
-                print "Data size", dat_siz
+                    print "Data size", dat_siz
 
-                sub_end = sub_pos + dat_siz
+                    sub_end = sub_pos + self.subhead_siz + dat_siz
 
-                print "sub_end", sub_end
+                    print "sub_end", sub_end
 
-                # read into object, add to list
+                    # read into object, add to list
 
-                print sub_pos, sub_end, self.onpts, self.oexp
-                self.sub.append(subFileOld(
-                    content[sub_pos - 32:sub_end],
-                    self.onpts, self.oexp, False))
-                # print self.sub[i].y
-                # update positions
-                sub_pos = sub_end
+                    print sub_pos, sub_end, self.onpts, self.oexp
+                    self.sub.append(subFileOld(
+                        content[sub_pos:sub_end],
+                        self.onpts, self.oexp, False))
+                    # print self.sub[i].y
+                    # update positions
+                    sub_pos = sub_end
+
+                    i += 1
+                except:
+                    self.fnsub = i + 1
+                    break
 
         # --------------------------------------------
         # SHIMADZU
         # --------------------------------------------
-        elif fversn == chr(0xcf):
+        elif self.fversn == chr(0xcf):
             print "Highly experimental format, may not work "
             raw_data = content[10240:]  # data starts here (maybe every time)
             # spacing between y and x data is atleast 0 bytes
@@ -375,7 +393,7 @@ class File:
 
         else:
             print "File type %s not supported yet. Please add issue. " \
-                % hex(ord(fversn))
+                % hex(ord(self.fversn))
             self.content = content
 
     # ------------------------------------------------------------------------
@@ -621,7 +639,7 @@ class File:
 
         >>> f.debug_info()
         """
-        print "\nDEBUG INFO"
+        print "\nDEBUG INFO\nFlags:\n"
         # Flag bits
         if self.tsprec:
             print "16-bit y data"
@@ -640,12 +658,13 @@ class File:
         if self.txvals:
             print "floating x-value array preceeds y's"
 
+        print '----\n'
         # spc format version
-        if self.fversn == '\0x4b':
+        if self.fversn == chr(0x4b):
             self.pr_versn = "new LSB 1st"
-        elif self.fversn == '\0x4c':
+        elif self.fversn == chr(0x4c):
             self.pr_versn = "new MSB 1st"
-        elif self.fversn == '\0x4d':
+        elif self.fversn == chr(0x4d):
             self.pr_versn = "old format"
         else:
             self.pr_versn = "unknown version"

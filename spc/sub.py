@@ -88,6 +88,8 @@ class subFile:
             lydata = len(data) - y_dat_pos
             if int(lydata / pts) == 4:
                 # 32 bit, using size of subheader to figure out data type
+                # actually there is flag for this, use it instead
+                # self.tsprec
                 y_dat_str += 'i' * pts
                 y_dat_end = y_dat_pos + (4 * pts)
                 y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
@@ -135,27 +137,27 @@ class subFileOld:
         # not very accurate for s_xy
         if self.subnpts > 0:  # probably should be > 0
             pts = self.subnpts
-            #print "Using local subpoints", pts
+            print "Using local subpoints", pts
         else:
             pts = fnpts
-            #print "Using global subpoints", pts
+            print "Using global subpoints", pts
 
         # if xvalues exists, y values should be the same size (need for s_xy)
         if fnpts > 0:
             pts = fnpts
-            #print "Using global subpoints", pts
+            print "Using global subpoints", pts
 
         yfloat = False
         if self.subexp == 128:
-            #print "Floating y-values"
+            print "Floating y-values"
             yfloat = True
 
         if self.subexp > 0 and self.subexp < 128:
             exp = self.subexp
-            #print "Using local exponent", exp
+            print "Using local exponent", exp
         else:
             exp = fexp
-            #print "Using global exponent", exp
+            print "Using global exponent", exp
 
         # --------------------------
         # if x_data present
@@ -169,7 +171,7 @@ class subFileOld:
 
             x_raw = np.array(struct.unpack(x_str, data[x_dat_pos:x_dat_end]))
             self.x = (2**(exp - 32)) * x_raw
-            #print "Extracted x-data"
+            print "Extracted x-data"
 
             y_dat_pos = x_dat_end
 
@@ -188,18 +190,21 @@ class subFileOld:
 
         y_raw = struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end])
 
+        self.y_raw = y_raw
         if yfloat:
             self.y = y_raw
-            #print "Extracted floating y data"
+            print "Extracted floating y data"
         else:
-            #print "Extracted integer y-data"
+            print "Extracted integer y-data"
             y_int = []
             for i in range(0, len(y_raw), 4):
                 y_int.append((
                     y_raw[i + 1] * (256**3) + y_raw[i] * (256**2) +
                     y_raw[i + 3] * (256) + y_raw[i + 2]))
             # fix negative values by casting to np.int32
-            self.y_int = np.int32(y_int) / (2**(32 - exp))
+            # signed int
+            y_int = np.int32(y_int) / (2**(32 - exp))
+
             self.y = y_int
         # fix negative values
         # print self.y
