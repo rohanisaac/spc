@@ -257,14 +257,16 @@ class File:
         # --------------------------------------------
         elif self.fversn == chr(0x4d):
             # old format
+            # oxtype -> fxtype
+            # oytype -> fytype
             self.oftflgs, \
                 self.oversn, \
                 self.oexp, \
                 self.onpts, \
                 self.ofirst, \
                 self.olast, \
-                self.oxtype, \
-                self.oytype, \
+                self.fxtype, \
+                self.fytype, \
                 self.oyear, \
                 self.omonth, \
                 self.oday, \
@@ -356,6 +358,12 @@ class File:
             # assuming it can't have separate x values
             self.dat_fmt = 'gx-y'
             print '{}({})'.format(self.dat_fmt, self.fnsub)
+
+            self.fxtype = ord(self.fxtype)
+            self.fytype = ord(self.fytype)
+            # need to find from year apparently
+            self.fztype = 0
+            self.set_labels()
 
         # --------------------------------------------
         # SHIMADZU
@@ -606,12 +614,13 @@ class File:
         if self.dat_fmt.endswith('-xy'):
             for s in self.sub:
                 plt.plot(s.x, s.y)
-            return plt.gcf()
         else:
             x = self.x
             for s in self.sub:
                 plt.plot(x, s.y)
-            return plt.gcf()
+        plt.xlabel(self.xlabel)
+        plt.ylabel(self.ylabel)
+        return plt.gcf()
 
     def debug_info(self):
         """
