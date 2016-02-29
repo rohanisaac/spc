@@ -113,13 +113,13 @@ f.__dict__  # view all object contents
 + Data uses variable naming as in SPC.H
 
 ### Todo
-+ Use flag for 16bit and test
++ ~~Use flag for 16bit and test~~
 + Check struct string (`<` vs others, using signed vs. unsigned ints)
 + Remove repetitions in sub class
 + Remove multiple definitions of flag bits
 + Better debug info that works all the time
 + Year info for old data
-+ Fix exponent in 16 bit format
++ ~~Fix exponent in 16 bit format~~
 + Add labels to plots and text output
 + Merge both subFile classes, they are pretty similar
 
