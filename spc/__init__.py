@@ -6,5 +6,5 @@ from .spc import File
 
 __author__ = "Rohan Isaac"
 __author_email__ = "rohan_isaac@yahoo.com"
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __license__ = "GPLv3"
