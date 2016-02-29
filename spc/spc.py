@@ -183,7 +183,7 @@ class File:
                     ssfposn, ssfsize, ssftime = struct.unpack(
                         '<iif', content[self.fnpts + (i * 12):self.fnpts + ((i + 1) * 12)])
                     # add sufile, load defaults for npts and exp
-                    self.sub.append(subFile(content[ssfposn:ssfposn + ssfsize], 0, 0, True))
+                    self.sub.append(subFile(content[ssfposn:ssfposn + ssfsize], 0, 0, True, self.tsprec))
 
             else:
                 # don't have directory, for each subfile
@@ -203,7 +203,7 @@ class File:
                     sub_end = sub_pos + dat_siz
                     # read into object, add to list
                     self.sub.append(subFile(content[sub_pos:sub_end],
-                                            self.fnpts, self.fexp, self.txyxys))
+                                            self.fnpts, self.fexp, self.txyxys, self.tsprec))
                     # update positions
                     sub_pos = sub_end
 
@@ -238,7 +238,7 @@ class File:
                         self.log_other.append(x)
 
             # spacing between data
-            self.pr_spacing = (self.flast - self.ffirst) / (self.fnpts - 1)
+            self.spacing = (self.flast - self.ffirst) / (self.fnpts - 1)
 
             # call functions
             self.set_labels()

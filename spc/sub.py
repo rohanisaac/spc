@@ -24,7 +24,7 @@ class subFile:
 
     """
 
-    def __init__(self, data, fnpts, fexp, txyxy):
+    def __init__(self, data, fnpts, fexp, txyxy, tsprec):
 
         # extract subheader info
         self.subflgs, \
@@ -85,19 +85,19 @@ class subFile:
             self.y = y_raw
         else:
             # integer format
-            lydata = len(data) - y_dat_pos
-            if int(lydata / pts) == 4:
+            # lydata = len(data) - y_dat_pos
+            if tsprec:
+                # 16 bit
+                y_dat_str += 'h' * pts  # short
+                y_dat_end = y_dat_pos + (2 * pts)
+                y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
+                self.y = (2**(exp - 32)) * y_raw
+            else:
                 # 32 bit, using size of subheader to figure out data type
                 # actually there is flag for this, use it instead
                 # self.tsprec
                 y_dat_str += 'i' * pts
                 y_dat_end = y_dat_pos + (4 * pts)
-                y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
-                self.y = (2**(exp - 32)) * y_raw
-            else:
-                # 16 bit
-                y_dat_str += 'h' * pts  # short
-                y_dat_end = y_dat_pos + (2 * pts)
                 y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
                 self.y = (2**(exp - 32)) * y_raw
 
