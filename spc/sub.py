@@ -91,7 +91,7 @@ class subFile:
                 y_dat_str += 'h' * pts  # short
                 y_dat_end = y_dat_pos + (2 * pts)
                 y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
-                self.y = (2**(exp - 32)) * y_raw
+                self.y = (2**(exp - 16)) * y_raw
             else:
                 # 32 bit, using size of subheader to figure out data type
                 # actually there is flag for this, use it instead
