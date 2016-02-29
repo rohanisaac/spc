@@ -14,7 +14,7 @@ Currently the library supports the following `fversn` bytes.
 |--------|------------------|--------------|----------------------------------------------------------------------------------------------------|
 | 0x4B   | New format (LSB) | Good         | z-values are not accounted for in data_txt() and plot() commands |
 | 0x4C   | New format (MSB) | None         | need sample file to test                                                                           |
-| 0x4D   | Old format       | Limited      |                                                                                                    |
+| 0x4D   | Old format       | Good      |                                                                                                    |
 | 0xCF   | SHIMADZU format  | Very limited | no metadata support, only tested on one file, no specifications                                    |
 
 ## Object format
@@ -121,6 +121,7 @@ f.__dict__  # view all object contents
 + Year info for old data
 + Fix exponent in 16 bit format
 + Add labels to plots and text output
++ Merge both subFile classes, they are pretty similar
 
 ## References
 [1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.

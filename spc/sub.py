@@ -105,8 +105,9 @@ class subFile:
 class subFileOld:
     """
     Processes each subfile passed to it, extracts header information and data
-    information and places them in data members. Used for the old format where
-    the y-values are stored in an odd way
+    information and places them in data members.
+
+    Used for the old format where the y-values are stored in an odd way
 
     Data
     ----
@@ -115,7 +116,9 @@ class subFileOld:
 
     """
 
-    def __init__(self, data, fnpts, fexp, txyxy):
+    def __init__(self, data, pts, fexp, txyxy):
+        # fixed header size
+        y_dat_pos = 32
 
         # extract subheader info
         self.subflgs, \
@@ -128,36 +131,19 @@ class subFileOld:
             self.subscan, \
             self.subwlevel, \
             self.subresv \
-            = read_subheader(data[:32])
+            = read_subheader(data[:y_dat_pos])
 
-        # print read_subheader(data[:32])
-        y_dat_pos = 32
-
-        # choose between global stuff and local stuff
-        # not very accurate for s_xy
-        if self.subnpts > 0:  # probably should be > 0
-            pts = self.subnpts
-            print "Using local subpoints", pts
-        else:
-            pts = fnpts
-            print "Using global subpoints", pts
-
-        # if xvalues exists, y values should be the same size (need for s_xy)
-        if fnpts > 0:
-            pts = fnpts
-            print "Using global subpoints", pts
-
+        # assume it is an integer unless told otherwise
         yfloat = False
         if self.subexp == 128:
-            print "Floating y-values"
             yfloat = True
 
+        # if the sub exp is reasonable, use it
         if self.subexp > 0 and self.subexp < 128:
             exp = self.subexp
-            print "Using local exponent", exp
         else:
+            # or use the global one
             exp = fexp
-            print "Using global exponent", exp
 
         # --------------------------
         # if x_data present
@@ -165,13 +151,11 @@ class subFileOld:
 
         if txyxy:
             x_str = 'i' * pts
-            # print "Len of str", struct.calcsize(x_str)
             x_dat_pos = y_dat_pos
             x_dat_end = x_dat_pos + (4 * pts)
 
             x_raw = np.array(struct.unpack(x_str, data[x_dat_pos:x_dat_end]))
             self.x = (2**(exp - 32)) * x_raw
-            print "Extracted x-data"
 
             y_dat_pos = x_dat_end
 
@@ -179,35 +163,30 @@ class subFileOld:
         # extract y_data
         # --------------------------
 
-        # for old format, extract the entire array out as 1 bit unsigned
-        # integers, swap 1st and 2nd byte, as well as 3rd and 4th byte to get
-        # the final integer then scale by the exponent
-        if yfloat:
-            y_dat_str = '<' + 'f' * pts
-        else:
-            y_dat_str = '>' + 'B' * 4 * pts
+        # assuming can't have 2 byte y-values, !! fix maybe
         y_dat_end = y_dat_pos + (4 * pts)
 
-        y_raw = struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end])
-
-        self.y_raw = y_raw
         if yfloat:
+            # floats are pretty straigtfoward
+            y_dat_str = '<' + 'f' * pts
+            y_raw = struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end])
             self.y = y_raw
-            print "Extracted floating y data"
         else:
-            print "Extracted integer y-data"
+            # for old format, extract the entire array out as 1 bit unsigned
+            # integers, swap 1st and 2nd byte, as well as 3rd and 4th byte to get
+            # the final integer then scale by the exponent
+            y_dat_str = '>' + 'B' * 4 * pts
+            y_raw = struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end])
+
             y_int = []
             for i in range(0, len(y_raw), 4):
                 y_int.append((
                     y_raw[i + 1] * (256**3) + y_raw[i] * (256**2) +
                     y_raw[i + 3] * (256) + y_raw[i + 2]))
-            # fix negative values by casting to np.int32
-            # signed int
+            # fix negative values by casting to np.int32 (signed int)
             y_int = np.int32(y_int) / (2**(32 - exp))
 
             self.y = y_int
-        # fix negative values
-        # print self.y
 
         # do stuff if subflgs
         # if 1 subfile changed

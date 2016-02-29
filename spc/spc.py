@@ -341,10 +341,9 @@ class File:
                     sub_end = sub_pos + self.subhead_siz + dat_siz
 
                     # read into object, add to list
+                    # send it pts since we have already figured that out
                     self.sub.append(subFileOld(
-                        content[sub_pos:sub_end],
-                        self.onpts, self.oexp, False))
-
+                        content[sub_pos:sub_end], pts, self.oexp, self.txyxys))
                     # update next subfile postion, and index
                     sub_pos = sub_end
 
