@@ -5,6 +5,7 @@ Command line utility to convert .SPC files to .TXT
 
 author: Rohan Isaac
 """
+from __future__ import division, absolute_import, unicode_literals, print_function
 import argparse
 import os
 import spc
@@ -47,14 +48,14 @@ def main():
 
             foutp = fpath[:-4] + exten
             try:
-                print fpath,
+                print(fpath, end=' ')
                 f = spc.File(fpath)
                 f.write_file(foutp, delimiter=delim)
-                print 'Converted'
+                print('Converted')
             except:
-                print 'Error processing %s' % fpath
+                print('Error processing %s' % fpath)
         else:
-            print '%s not spc file, skipping' % fpath
+            print('%s not spc file, skipping' % fpath)
 
 if __name__ == '__main__':
     main()

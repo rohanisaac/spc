@@ -120,7 +120,7 @@ f.__dict__  # view all object contents
 + Better debug info that works all the time
 + Year info for old data
 + ~~Fix exponent in 16 bit format~~
-+ Add labels to plots and text output
++ Add labels to ~~plots and~~ text output
 + Merge both subFile classes, they are pretty similar
 
 ## References

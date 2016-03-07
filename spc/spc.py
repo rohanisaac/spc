@@ -5,12 +5,12 @@ file
 author: Rohan Isaac
 """
 
-from __future__ import division
+from __future__ import division, absolute_import, unicode_literals, print_function
 import struct
 import numpy as np
 
-from sub import subFile, subFileOld
-from global_fun import read_subheader, flag_bits
+from .sub import subFile, subFileOld
+from .global_fun import read_subheader, flag_bits
 
 
 class File:
@@ -61,7 +61,7 @@ class File:
         # --------------------------------------------
         # NEW FORMAT (LSB)
         # --------------------------------------------
-        if self.fversn == chr(0x4b):
+        if self.fversn == b'\x4b':
             # format: new LSB 1st
             # -------------
             # unpack header
@@ -153,7 +153,7 @@ class File:
                 # no x values are given, but they can be generated
                 self.dat_fmt = 'gx-y'
 
-            print '{}({})'.format(self.dat_fmt, self.fnsub)
+            print('{}({})'.format(self.dat_fmt, self.fnsub))
 
             sub_pos = self.head_siz
 
@@ -224,15 +224,15 @@ class File:
                 log_end_pos = log_pos + self.logsizd
 
                 # line endings: get rid of any '\r' and then split on '\n'
-                self.log_content = content[log_pos:log_end_pos].replace('\r', '').split('\n')
+                self.log_content = content[log_pos:log_end_pos].replace(b'\r', b'').split(b'\n')
 
                 # split log data into dictionary based on =
                 self.log_dict = dict()
                 self.log_other = []  # put the rest into a list
                 for x in self.log_content:
-                    if x.find('=') >= 0:
+                    if x.find(b'=') >= 0:
                         # stop it from breaking if there is more than 1 =
-                        key, value = x.split('=')[:2]
+                        key, value = x.split(b'=')[:2]
                         self.log_dict[key] = value
                     else:
                         self.log_other.append(x)
@@ -247,15 +247,15 @@ class File:
         # --------------------------------------------
         # NEW FORMAT (MSB)
         # --------------------------------------------
-        elif self.fversn == chr(0x4c):
+        elif self.fversn == b'\x4c':
             # new MSB 1st
-            print "New MSB 1st, yet to be implemented"
+            print("New MSB 1st, yet to be implemented")
             pass  # To be implemented
 
         # --------------------------------------------
         # OLD FORMAT
         # --------------------------------------------
-        elif self.fversn == chr(0x4d):
+        elif self.fversn == b'\x4d':
             # old format
             # oxtype -> fxtype
             # oytype -> fytype
@@ -311,8 +311,8 @@ class File:
             self.onscans = int(self.onscans)
 
             # null terminated strings
-            self.ores = str(self.ores).split('\x00')[0]
-            self.ocmnt = str(self.ocmnt).split('\x00')[0]
+            self.ores = self.ores.split(b'\x00')[0]
+            self.ocmnt = self.ocmnt.split(b'\x00')[0]
 
             # can it have separate x values ?
             self.x = np.linspace(self.ofirst, self.olast, num=self.onpts)
@@ -357,7 +357,7 @@ class File:
 
             # assuming it can't have separate x values
             self.dat_fmt = 'gx-y'
-            print '{}({})'.format(self.dat_fmt, self.fnsub)
+            print('{}({})'.format(self.dat_fmt, self.fnsub))
 
             self.fxtype = ord(self.fxtype)
             self.fytype = ord(self.fytype)
@@ -368,8 +368,8 @@ class File:
         # --------------------------------------------
         # SHIMADZU
         # --------------------------------------------
-        elif self.fversn == chr(0xcf):
-            print "Highly experimental format, may not work "
+        elif self.fversn == b'\xcf':
+            print("Highly experimental format, may not work ")
             raw_data = content[10240:]  # data starts here (maybe every time)
             # spacing between y and x data is atleast 0 bytes
             s_32 = chr(int('0', 2)) * 32
@@ -384,8 +384,8 @@ class File:
             self.x = struct.unpack('<' + dat_siz * 'd', raw_data[i:i + dat_len])
 
         else:
-            print "File type %s not supported yet. Please add issue. " \
-                % hex(ord(self.fversn))
+            print("File type %s not supported yet. Please add issue. "
+                  % hex(ord(self.fversn)))
             self.content = content
 
     # ------------------------------------------------------------------------
@@ -492,7 +492,7 @@ class File:
         # split it based on 00 string
         # format x, y, z
         if self.talabs:
-            ll = self.fcatxt.split('\x00')
+            ll = self.fcatxt.split(b'\x00')
             if len(ll) > 2:
                 # make sure there are enough items to extract from
                 xl, yl, zl = ll[:3]
@@ -594,11 +594,11 @@ class File:
 
     def print_metadata(self):
         """ Print out select metadata"""
-        print "Scan: ", self.log_dict['Comment'], "\n", \
-            float(self.log_dict['Start']), "to ", \
-            float(self.log_dict['End']), "; ", \
-            float(self.log_dict['Increment']), "cm-1;", \
-            float(self.log_dict['Integration Time']), "s integration time"
+        print("Scan: ", self.log_dict['Comment'], "\n",
+              float(self.log_dict['Start']), "to ",
+              float(self.log_dict['End']), "; ",
+              float(self.log_dict['Increment']), "cm-1;",
+              float(self.log_dict['Integration Time']), "s integration time")
 
     def plot(self):
         """ Plots data, and use column headers, returns figure object plotted
@@ -632,26 +632,26 @@ class File:
 
         >>> f.debug_info()
         """
-        print "\nDEBUG INFO\nFlags:\n"
+        print("\nDEBUG INFO\nFlags:\n")
         # Flag bits
         if self.tsprec:
-            print "16-bit y data"
+            print("16-bit y data")
         if self.tcgram:
-            print "enable fexper"
+            print("enable fexper")
         if self.tmulti:
-            print "multiple traces"
+            print("multiple traces")
         if self.trandm:
-            print "arb time (z) values"
+            print("arb time (z) values")
         if self.tordrd:
-            print "ordered but uneven subtimes"
+            print("ordered but uneven subtimes")
         if self.talabs:
-            print "use fcatxt axis not fxtype"
+            print("use fcatxt axis not fxtype")
         if self.txyxys:
-            print "each subfile has own x's"
+            print("each subfile has own x's")
         if self.txvals:
-            print "floating x-value array preceeds y's"
+            print("floating x-value array preceeds y's")
 
-        print '----\n'
+        print('----\n')
         # spc format version
         if self.fversn == chr(0x4b):
             self.pr_versn = "new LSB 1st"
@@ -662,19 +662,19 @@ class File:
         else:
             self.pr_versn = "unknown version"
 
-        print "Version:", self.pr_versn
+        print("Version:", self.pr_versn)
 
         # subfiles
         if self.fnsub == 1:
-            print "Single file only"
+            print("Single file only")
         else:
-            print "Multiple subfiles:", self.fnsub
+            print("Multiple subfiles:", self.fnsub)
 
         # multiple y values
         if self.tmulti:
-            print "Multiple y-values"
+            print("Multiple y-values")
         else:
-            print "Single set of y-values"
+            print("Single set of y-values")
 
         # print "There are ", self.fnpts, \
         #    " points between ", self.ffirst, \

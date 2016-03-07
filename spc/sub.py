@@ -4,11 +4,12 @@ SubFile class: loads each subfile data segment into object
 author: Rohan Isaac
 """
 
-from __future__ import division
+from __future__ import division, absolute_import, unicode_literals, print_function
+
 import struct
 import numpy as np
 
-from global_fun import read_subheader
+from .global_fun import read_subheader
 
 
 class subFile:
@@ -165,7 +166,6 @@ class subFileOld:
 
         # assuming can't have 2 byte y-values, !! fix maybe
         y_dat_end = y_dat_pos + (4 * pts)
-
         if yfloat:
             # floats are pretty straigtfoward
             y_dat_str = '<' + 'f' * pts
