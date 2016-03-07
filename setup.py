@@ -12,4 +12,11 @@ setup(name='spc',
       url='https://github.com/rohanisaac/spc',
       packages=['spc'],
       install_requires=['numpy'],
+      classifiers=[
+        'Development Status :: 4 - Beta'
+        'Intended Audience :: Science/Research'
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5'
+        ],
       )
