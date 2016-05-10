@@ -1,7 +1,9 @@
 # test files
 test_data/
-gen_ref.py
-test.py
+gen_ref2.py
+gen_ref3.py
+test2.py
+test3.py
 docs/
 
 # Byte-compiled / optimized / DLL files
