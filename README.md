@@ -1,9 +1,14 @@
 # spc
+
+[![Build Status](https://travis-ci.org/rohanisaac/spc.svg?branch=master)](https://travis-ci.org/rohanisaac/spc)
+
 A module for working with .SPC files in Python. SPC is a binary data format to store a variety of spectral data, developed by Galactic Industries Corporation in the '90s. Popularly used  Thermo Fisher/Scientific software  GRAMS/AI. Also used by others including Ocean Optics, Jobin Yvon Horiba. Can store a variety of spectrum including FT-IR, UV-VIS, X-ray Diffraction, Mass Spectroscopy, NMR, Raman and Fluorescence spectra.
 
 The SPC file format can store either single or multiple y-values, and the x-values can either be given explicitly or even spaced x-values can be generated based on initial and final points as well as number of points. In addition the format can store various log data and parameters, as well as various information such as axis labels and scan type.
 
 Based mainly on the Thermo Scientific SPC File SDK [1]
+
+Works on Python 2.7+
 
 ## File versions supported
 
