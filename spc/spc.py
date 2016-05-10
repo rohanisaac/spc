@@ -57,7 +57,7 @@ class File:
 
         self.length = len(content)
         # extract first two bytes to determine file type version
-        self.ftflg, self.fversn = struct.unpack('<cc', content[:2])
+        self.ftflg, self.fversn = struct.unpack(unicode('<cc').encode('utf8'), content[:2])
         # --------------------------------------------
         # NEW FORMAT (LSB)
         # --------------------------------------------
@@ -99,7 +99,7 @@ class File:
                 self.fwinc, \
                 self.fwtype, \
                 self.freserv \
-                = struct.unpack(self.head_str, content[:self.head_siz])
+                = struct.unpack(unicode(self.head_str).encode('utf8'), content[:self.head_siz])
 
             # Flag bits
             self.tsprec, \
@@ -181,7 +181,7 @@ class File:
                 # loop over entries in directory
                 for i in range(0, self.fnsub):
                     ssfposn, ssfsize, ssftime = struct.unpack(
-                        '<iif', content[self.fnpts + (i * 12):self.fnpts + ((i + 1) * 12)])
+                        unicode('<iif').encode('utf8'), content[self.fnpts + (i * 12):self.fnpts + ((i + 1) * 12)])
                     # add sufile, load defaults for npts and exp
                     self.sub.append(subFile(content[ssfposn:ssfposn + ssfsize], 0, 0, True, self.tsprec))
 
@@ -217,7 +217,7 @@ class File:
                     self.logbins, \
                     self.logdsks, \
                     self.logspar \
-                    = struct.unpack(self.logstc_str,
+                    = struct.unpack(unicode(self.logstc_str).encode('utf8'),
                                     content[self.flogoff:log_head_end])
                 log_pos = self.flogoff + self.logtxto
 
@@ -278,7 +278,7 @@ class File:
                 self.ospare, \
                 self.ocmnt, \
                 self.ocatxt, \
-                self.osubh1 = struct.unpack(self.old_head_str,
+                self.osubh1 = struct.unpack(unicode(self.old_head_str).encode('utf8'),
                                             content[:self.old_head_siz])
 
             # Flag bits (assuming same)
@@ -380,8 +380,8 @@ class File:
                 if raw_data[i:i + 8] != s_8:
                     break
             dat_siz = int(dat_len / 8)
-            self.y = struct.unpack('<' + dat_siz * 'd', raw_data[:dat_len])
-            self.x = struct.unpack('<' + dat_siz * 'd', raw_data[i:i + dat_len])
+            self.y = struct.unpack(unicode('<' + dat_siz * 'd').encode('utf8'), raw_data[:dat_len])
+            self.x = struct.unpack(unicode('<' + dat_siz * 'd').encode('utf8'), raw_data[i:i + dat_len])
 
         else:
             print("File type %s not supported yet. Please add issue. "

@@ -69,7 +69,7 @@ class subFile:
             x_dat_pos = y_dat_pos
             x_dat_end = x_dat_pos + (4 * pts)
 
-            x_raw = np.array(struct.unpack(x_str, data[x_dat_pos:x_dat_end]))
+            x_raw = np.array(struct.unpack(unicode(x_str).encode('utf8'), data[x_dat_pos:x_dat_end]))
             self.x = (2**(exp - 32)) * x_raw
 
             y_dat_pos = x_dat_end
@@ -82,7 +82,7 @@ class subFile:
             # Floating y-values
             y_dat_str += 'f' * pts
             y_dat_end = y_dat_pos + (4 * pts)
-            y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
+            y_raw = np.array(struct.unpack(unicode(y_dat_str).encode('utf8'), data[y_dat_pos:y_dat_end]))
             self.y = y_raw
         else:
             # integer format
@@ -91,7 +91,7 @@ class subFile:
                 # 16 bit
                 y_dat_str += 'h' * pts  # short
                 y_dat_end = y_dat_pos + (2 * pts)
-                y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
+                y_raw = np.array(struct.unpack(unicode(y_dat_str).encode('utf8'), data[y_dat_pos:y_dat_end]))
                 self.y = (2**(exp - 16)) * y_raw
             else:
                 # 32 bit, using size of subheader to figure out data type
@@ -99,7 +99,7 @@ class subFile:
                 # self.tsprec
                 y_dat_str += 'i' * pts
                 y_dat_end = y_dat_pos + (4 * pts)
-                y_raw = np.array(struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end]))
+                y_raw = np.array(struct.unpack(unicode(y_dat_str).encode('utf8'), data[y_dat_pos:y_dat_end]))
                 self.y = (2**(exp - 32)) * y_raw
 
 
@@ -155,7 +155,7 @@ class subFileOld:
             x_dat_pos = y_dat_pos
             x_dat_end = x_dat_pos + (4 * pts)
 
-            x_raw = np.array(struct.unpack(x_str, data[x_dat_pos:x_dat_end]))
+            x_raw = np.array(struct.unpack(unicode(x_str).encode('utf8'), data[x_dat_pos:x_dat_end]))
             self.x = (2**(exp - 32)) * x_raw
 
             y_dat_pos = x_dat_end
@@ -169,14 +169,14 @@ class subFileOld:
         if yfloat:
             # floats are pretty straigtfoward
             y_dat_str = '<' + 'f' * pts
-            y_raw = struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end])
+            y_raw = struct.unpack(unicode(y_dat_str).encode('utf8'), data[y_dat_pos:y_dat_end])
             self.y = y_raw
         else:
             # for old format, extract the entire array out as 1 bit unsigned
             # integers, swap 1st and 2nd byte, as well as 3rd and 4th byte to get
             # the final integer then scale by the exponent
             y_dat_str = '>' + 'B' * 4 * pts
-            y_raw = struct.unpack(y_dat_str, data[y_dat_pos:y_dat_end])
+            y_raw = struct.unpack(unicode(y_dat_str).encode('utf8'), data[y_dat_pos:y_dat_end])
 
             y_int = []
             for i in range(0, len(y_raw), 4):
