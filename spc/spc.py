@@ -137,7 +137,10 @@ class File:
 
             # null terminated string, replace null characters with spaces
             # split and join to remove multiple spaces
-            self.cmnt = ' '.join((self.fcmnt.replace('\x00', ' ')).split())
+            try:
+                self.cmnt = ' '.join((self.fcmnt.replace('\x00', ' ')).split())
+            except:
+                self.cmnt = self.fcmnt
 
             # figure out type of file
             if self.fnsub > 1:
