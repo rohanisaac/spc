@@ -10,6 +10,14 @@ Based mainly on the Thermo Scientific SPC File SDK [1]
 
 Works on Python 2.7+
 
+### Installation
+
+Download directory and run
+
+```bash
+$ python setup.py install
+```
+
 ## File versions supported
 
 File versions are given by the second bit in the file, `fversn` in an SPC object.
