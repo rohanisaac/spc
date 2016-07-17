@@ -52,12 +52,12 @@ x-y(20)  # format string
 | Comment (formatted) | f.cmnt          |
 | Comment (raw)       | f.fcmnt         |
 | Experiment type     | f.exp_type      |
-| Log dictionay       | f.log_dict      |
+| Log dictionary      | f.log_dict      |
 | Log (remaining)     | f.log_other     |
 
 | Functions      |
 |----------------|
-| f.output_txt() |
+| f.data_txt()   |
 | f.debug_info() |
 | f.plot()       |
 | f.write_file() |
@@ -104,7 +104,7 @@ Only works on a single folder at a time.
 import spc
 f = spc.File('/path/to/file.spc')
 f.debug_info() 	# extract info from header metadata
-f.output_txt()  # output file data as columns
+f.data_txt()  # output file data as columns
 f.plot()  # plot using matplotlib
 f.__dict__  # view all object contents
 ```
