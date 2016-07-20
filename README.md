@@ -32,6 +32,8 @@ Note the format string outputed refers to where data is stored the object, which
 
 #### Examples
 
+|Format string| Meaning |
+|---------|-----------|
 |x-y(3)    | global x data, 3 corresponding y data series.                 |
 |-xy(4)    | four subfiles with individual x and y data series.            |
 |gx-y(10)  | global x generated data, and 10 corresponding y data series.  |
