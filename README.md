@@ -31,6 +31,7 @@ x-y(20)  # format string
 Note the format string outputed refers to where data is stored the object, which corresponds to the various ways data can be stored in the spc file format. Items before the `-` means that data is global, after the `-` means the data is in a subFile, and the (n) refers to the number of subfiles.
 
 #### Examples
+
 |x-y(3)    | global x data, 3 corresponding y data series.                 |
 |-xy(4)    | four subfiles with individual x and y data series.            |
 |gx-y(10)  | global x generated data, and 10 corresponding y data series.  |
