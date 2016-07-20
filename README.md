@@ -6,19 +6,33 @@ A module for working with .SPC files in Python. SPC is a binary data format to s
 
 The SPC file format can store either single or multiple y-values, and the x-values can either be given explicitly or even spaced x-values can be generated based on initial and final points as well as number of points. In addition the format can store various log data and parameters, as well as various information such as axis labels and scan type.
 
-Based mainly on the Thermo Scientific SPC File SDK [1]
+## Features
+1. Extracts header information into object members
+2. For each subfile, extract subfile data into `subFile` class objects `sub[0]` (, `sub[1]`, `sub[2]`, ...)
+3. Extract x and y values into numpy `ndarray`
+3. Attempts to interpret x,y, and z labels, as well as scan type
+4. Member functions to output data in text, or plot using `matplotlib`
 
-Works on Python 2.7+
+## Installation
 
-### Installation
+### Requirements
 
-Download directory and run
+```
+python2.7+
+numpy
+matplotlib (optional, for plotting)
+```
+
+Download zip and extract or clone repository. From the resulting folder run
 
 ```bash
+$ cd ~/Downloads/spc-master/
 $ python setup.py install
 ```
 
-### Usage
+## Usage
+
+From a Python/IPython session or in a script
 
 ```python
 >>> import spc
@@ -26,11 +40,12 @@ $ python setup.py install
 x-y(20)  # format string
 >>> f.data_txt()  # output data
 >>> f.write_file('output.txt')  # write data to file
+>>> f.plot()  # plot data
 ```
 
 Note the format string outputed refers to where data is stored the object, which corresponds to the various ways data can be stored in the spc file format. Items before the `-` means that data is global, after the `-` means the data is in a subFile, and the (n) refers to the number of subfiles.
 
-#### Examples
+### Examples
 
 |Format string | Meaning                                                              |
 |--------------|----------------------------------------------------------------------|
@@ -62,7 +77,7 @@ Depending on the information stored in the file, there are a number of metadata 
 | Log dictionary      | f.log_dict      |
 | Log (remaining)     | f.log_other     |
 
-To get a full list of data/metadata stored in the object, you can run `dir(object)` on the file and subFile objects. 
+To get a full list of data/metadata stored in the object, you can run `object.__dict__` on the file and subFile objects. 
 
 ### Functions
 
@@ -74,7 +89,7 @@ To get a full list of data/metadata stored in the object, you can run `dir(objec
 | f.write_file() | Writes data to text file                  |
 
 
-## File versions supported
+### File versions supported
 
 File versions are given by the second bit in the file, `fversn` in an SPC object.
 Currently the library supports the following `fversn` bytes.
@@ -88,6 +103,8 @@ Currently the library supports the following `fversn` bytes.
 
 
 ## File converter
+
+The file converter can be use to convert files/directories from the terminal.
 
 ### CLI: convert.py
 
@@ -121,32 +138,8 @@ Only works on a single folder at a time.
 
 ![Graphical interface based on Gooey](images/gui.png)
 
-
-## General use
-
-```python
-# import file to python object
-import spc
-f = spc.File('/path/to/file.spc')
-f.debug_info() 	# extract info from header metadata
-f.data_txt()  # output file data as columns
-f.plot()  # plot using matplotlib
-f.__dict__  # view all object contents
-```
-
-## Features
-1. Extracts header information into object members
-2. For each subfile, extract subfile data into `subFile` class objects `sub[0]` (, `sub[1]`, `sub[2]`, ...)
-3. Extract x and y values into numpy `ndarray`
-3. Attempts to interpret x,y, and z labels, as well as scan type
-4. Member functions to output data in text, or plot using `matplotlib`
-
-### Dependencies
-- numpy
-- matplotlib (for plotting)
-
 ### Notes
-+ Used format specification [1]
++ Used format specification from SDK [1]
 + Loads entire file into memory
 + Data uses variable naming as in SPC.H
 
