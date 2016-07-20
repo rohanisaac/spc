@@ -18,31 +18,35 @@ Download directory and run
 $ python setup.py install
 ```
 
-## File versions supported
-
-File versions are given by the second bit in the file, `fversn` in an SPC object.
-Currently the library supports the following `fversn` bytes.
-
-| fversn | Description      | Support      | Notes                                                                                              |
-|--------|------------------|--------------|----------------------------------------------------------------------------------------------------|
-| 0x4B   | New format (LSB) | Good         | z-values are not accounted for in data_txt() and plot() commands |
-| 0x4C   | New format (MSB) | None         | need sample file to test                                                                           |
-| 0x4D   | Old format       | Good      |                                                                                                    |
-| 0xCF   | SHIMADZU format  | Very limited | no metadata support, only tested on one file, no specifications                                    |
-
-## Object format
+### Usage
 
 ```python
 >>> import spc
->>> f = spc.File('/Desktop/sample.spc')
+>>> f = spc.File('/Desktop/sample.spc')  # read file
 x-y(20)  # format string
+>>> f.data_txt()  # output data
+>>> f.write_file('output.txt')  # write data to file
 ```
+
+Note the format string outputed refers to where data is stored the object, which corresponds to the various ways data can be stored in the spc file format. Items before the `-` means that data is global, after the `-` means the data is in a subFile, and the (n) refers to the number of subfiles.
+
+#### Examples
+|x-y(3)    | global x data, 3 corresponding y data series.                 |
+|-xy(4)    | four subfiles with individual x and y data series.            |
+|gx-y(10)  | global x generated data, and 10 corresponding y data series.  |
+
+
+### Accessing data
+
+The object generated is populated with all the data and metadata from the file. The data can be manully accessed using the entry in the table corresponding to the format string outputted. 
 
 | format string | x-values                  | y-values                  |
 |---------------|---------------------------|---------------------------|
 | -xy(n)        | f.sub[0].x ... f.sub[n].x | f.sub[0].y ... f.sub[n].y |
 | x-y(n)        | f.x                       | f.sub[0].y ... f.sub[n].y |
 | gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
+
+Depending on the information stored in the file, there are a number of metadata fields that may be populated. Some commonly used fields are 
 
 | metadata            | variable        |
 |---------------------|-----------------|
@@ -55,12 +59,30 @@ x-y(20)  # format string
 | Log dictionary      | f.log_dict      |
 | Log (remaining)     | f.log_other     |
 
-| Functions      |
-|----------------|
-| f.data_txt()   |
-| f.debug_info() |
-| f.plot()       |
-| f.write_file() |
+To get a full list of data/metadata stored in the object, you can run `dir(object)` on the file and subFile objects. 
+
+### Functions
+
+| Functions      | Description                               |
+|----------------|-------------------------------------------|
+| f.data_txt()   | Outputs data to stdout                    |
+| f.debug_info() | Human readable metadata for debugging     |
+| f.plot()       | Plots data using matplotlib               |
+| f.write_file() | Writes data to text file                  |
+
+
+## File versions supported
+
+File versions are given by the second bit in the file, `fversn` in an SPC object.
+Currently the library supports the following `fversn` bytes.
+
+| fversn | Description      | Support      | Notes                                                                                              |
+|--------|------------------|--------------|----------------------------------------------------------------------------------------------------|
+| 0x4B   | New format (LSB) | Good         | z-values are not accounted for in data_txt() and plot() commands |
+| 0x4C   | New format (MSB) | None         | need sample file to test                                                                           |
+| 0x4D   | Old format       | Good      |                                                                                                    |
+| 0xCF   | SHIMADZU format  | Very limited | no metadata support, only tested on one file, no specifications                                    |
+
 
 ## File converter
 
