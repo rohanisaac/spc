@@ -56,7 +56,7 @@ Note the format string outputed refers to where data is stored the object, which
 
 ### Accessing data
 
-The object generated is populated with all the data and metadata from the file. The data can be manully accessed using the entry in the table corresponding to the format string outputted. 
+The object generated is populated with all the data and metadata from the file. The data can be manully accessed using the entry in the table corresponding to the format string outputted.
 
 | format string | x-values                  | y-values                  |
 |---------------|---------------------------|---------------------------|
@@ -64,7 +64,7 @@ The object generated is populated with all the data and metadata from the file. 
 | x-y(n)        | f.x                       | f.sub[0].y ... f.sub[n].y |
 | gx-y(n)       | f.x (generated)           | f.sub[0].y ... f.sub[n].y |
 
-Depending on the information stored in the file, there are a number of metadata fields that may be populated. Some commonly used fields are 
+Depending on the information stored in the file, there are a number of metadata fields that may be populated. Some commonly used fields are
 
 | metadata            | variable        |
 |---------------------|-----------------|
@@ -77,7 +77,7 @@ Depending on the information stored in the file, there are a number of metadata 
 | Log dictionary      | f.log_dict      |
 | Log (remaining)     | f.log_other     |
 
-To get a full list of data/metadata stored in the object, you can run `object.__dict__` on the file and subFile objects. 
+To get a full list of data/metadata stored in the object, you can run `object.__dict__` on the file and subFile objects.
 
 ### Functions
 
@@ -132,11 +132,14 @@ optional arguments:
 
 ### GUI: convert_gui.py
 
-Requires [wxPython](http://www.wxpython.org/download.php) and [Gooey](https://github.com/chriskiehl/Gooey) (`pip install gooey`)
+Uses Tk which is generally included as part of Python standard library.
 
-Only works on a single folder at a time.
+####Notes
+1. Only works with Python 2.7 right now, need to fix imports for Python 3.x
+2. Only works on a single folder at a time.
+3. Tkinter sometimes needs to be installed on linux distributions
 
-![Graphical interface based on Gooey](images/gui.png)
+![Tk based Graphical interface](images/gui.png)
 
 ### Notes
 + Used format specification from SDK [1]
