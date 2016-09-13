@@ -186,7 +186,7 @@ class File:
                     ssfposn, ssfsize, ssftime = struct.unpack(
                         '<iif'.encode('utf8'), content[self.fnpts + (i * 12):self.fnpts + ((i + 1) * 12)])
                     # add sufile, load defaults for npts and exp
-                    self.sub.append(subFile(content[ssfposn:ssfposn + ssfsize], 0, 0, True, self.tsprec))
+                    self.sub.append(subFile(content[ssfposn:ssfposn + ssfsize], 0, 0, True, self.tsprec, self.tmulti))
 
             else:
                 # don't have directory, for each subfile
@@ -206,7 +206,7 @@ class File:
                     sub_end = sub_pos + dat_siz
                     # read into object, add to list
                     self.sub.append(subFile(content[sub_pos:sub_end],
-                                            self.fnpts, self.fexp, self.txyxys, self.tsprec))
+                                            self.fnpts, self.fexp, self.txyxys, self.tsprec, self.tmulti))
                     # update positions
                     sub_pos = sub_end
 

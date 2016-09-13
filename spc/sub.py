@@ -25,7 +25,7 @@ class subFile:
 
     """
 
-    def __init__(self, data, fnpts, fexp, txyxy, tsprec):
+    def __init__(self, data, fnpts, fexp, txyxy, tsprec, tmulti):
 
         # extract subheader info
         self.subflgs, \
@@ -51,14 +51,14 @@ class subFile:
 
         # Choosing exponent
         # -----------------
-        if -128 < self.subexp < 128:
-            # if subfile has reasonable exponent, use it
-            exp = self.subexp
-        elif -128 < fexp < 128:
-            # if global exponent is reasonable, use it
+        # choose local vs global exponent depending on tmulti
+        if not tmulti:
             exp = fexp
         else:
-            # all else fails, set exp 0
+            exp = self.subexp
+
+        # Make sure it is reasonable, if it out of range zero it
+        if not (-128 < exp <= 128):
             exp = 0
 
         # --------------------------
@@ -78,7 +78,7 @@ class subFile:
         # extract y_data
         # --------------------------
         y_dat_str = '<'
-        if self.subexp == 128:
+        if exp == 128:
             # Floating y-values
             y_dat_str += 'f' * pts
             y_dat_end = y_dat_pos + (4 * pts)
