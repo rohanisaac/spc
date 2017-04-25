@@ -8,10 +8,13 @@ author: Rohan Isaac
 from __future__ import division, absolute_import, unicode_literals, print_function
 import struct
 import numpy as np
+import sys
+import logging
 
 from .sub import subFile, subFileOld
 from .global_fun import read_subheader, flag_bits
 
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 class File:
     """
@@ -53,7 +56,7 @@ class File:
         # load entire into memory temporarly
         with open(filename, "rb") as fin:
             content = fin.read()
-            # print "Read raw data"
+            logging.debug("Read raw data")
 
         self.length = len(content)
         # extract first two bytes to determine file type version
@@ -156,7 +159,7 @@ class File:
                 # no x values are given, but they can be generated
                 self.dat_fmt = 'gx-y'
 
-            print('{}({})'.format(self.dat_fmt, self.fnsub))
+            logging.debug('{}({})'.format(self.dat_fmt, self.fnsub))
 
             sub_pos = self.head_siz
 
@@ -252,7 +255,7 @@ class File:
         # --------------------------------------------
         elif self.fversn == b'\x4c':
             # new MSB 1st
-            print("New MSB 1st, yet to be implemented")
+            logging.debug("New MSB 1st, yet to be implemented")
             pass  # To be implemented
 
         # --------------------------------------------
@@ -360,7 +363,7 @@ class File:
 
             # assuming it can't have separate x values
             self.dat_fmt = 'gx-y'
-            print('{}({})'.format(self.dat_fmt, self.fnsub))
+            logging.debug('{}({})'.format(self.dat_fmt, self.fnsub))
 
             self.fxtype = ord(self.fxtype)
             self.fytype = ord(self.fytype)
@@ -372,7 +375,7 @@ class File:
         # SHIMADZU
         # --------------------------------------------
         elif self.fversn == b'\xcf':
-            print("Highly experimental format, may not work ")
+            logging.debug("Highly experimental format, may not work ")
             raw_data = content[10240:]  # data starts here (maybe every time)
             # spacing between y and x data is atleast 0 bytes
             s_32 = chr(int('0', 2)) * 32
@@ -387,7 +390,7 @@ class File:
             self.x = struct.unpack(('<' + dat_siz * 'd').encode('utf8'), raw_data[i:i + dat_len])
 
         else:
-            print("File type %s not supported yet. Please add issue. "
+            logging.debug("File type %s not supported yet. Please add issue. "
                   % hex(ord(self.fversn)))
             self.content = content
 
@@ -597,7 +600,7 @@ class File:
 
     def print_metadata(self):
         """ Print out select metadata"""
-        print("Scan: ", self.log_dict['Comment'], "\n",
+        logging.debug("Scan: ", self.log_dict['Comment'], "\n",
               float(self.log_dict['Start']), "to ",
               float(self.log_dict['End']), "; ",
               float(self.log_dict['Increment']), "cm-1;",
@@ -635,26 +638,26 @@ class File:
 
         >>> f.debug_info()
         """
-        print("\nDEBUG INFO\nFlags:\n")
+        logging.debug("\nDEBUG INFO\nFlags:\n")
         # Flag bits
         if self.tsprec:
-            print("16-bit y data")
+            logging.debug("16-bit y data")
         if self.tcgram:
-            print("enable fexper")
+            logging.debug("enable fexper")
         if self.tmulti:
-            print("multiple traces")
+            logging.debug("multiple traces")
         if self.trandm:
-            print("arb time (z) values")
+            logging.debug("arb time (z) values")
         if self.tordrd:
-            print("ordered but uneven subtimes")
+            logging.debug("ordered but uneven subtimes")
         if self.talabs:
-            print("use fcatxt axis not fxtype")
+            logging.debug("use fcatxt axis not fxtype")
         if self.txyxys:
-            print("each subfile has own x's")
+            logging.debug("each subfile has own x's")
         if self.txvals:
-            print("floating x-value array preceeds y's")
+            logging.debug("floating x-value array preceeds y's")
 
-        print('----\n')
+        logging.debug('----\n')
         # spc format version
         if self.fversn == chr(0x4b):
             self.pr_versn = "new LSB 1st"
@@ -665,21 +668,21 @@ class File:
         else:
             self.pr_versn = "unknown version"
 
-        print("Version:", self.pr_versn)
+        logging.debug("Version:", self.pr_versn)
 
         # subfiles
         if self.fnsub == 1:
-            print("Single file only")
+            logging.debug("Single file only")
         else:
-            print("Multiple subfiles:", self.fnsub)
+            logging.debug("Multiple subfiles:", self.fnsub)
 
         # multiple y values
         if self.tmulti:
-            print("Multiple y-values")
+            logging.debug("Multiple y-values")
         else:
-            print("Single set of y-values")
+            logging.debug("Single set of y-values")
 
-        # print "There are ", self.fnpts, \
+        # logging.debug "There are ", self.fnpts, \
         #    " points between ", self.ffirst, \
         #    " and ", self.flast, \
         #    " in steps of ", self.pr_spacing
