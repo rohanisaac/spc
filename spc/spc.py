@@ -596,12 +596,15 @@ class File:
             f.write(self.data_txt(delimiter, newline))
 
     def print_metadata(self):
-        """ Print out select metadata"""
-        print("Scan: ", self.log_dict['Comment'], "\n",
-              float(self.log_dict['Start']), "to ",
-              float(self.log_dict['End']), "; ",
-              float(self.log_dict['Increment']), "cm-1;",
-              float(self.log_dict['Integration Time']), "s integration time")
+        """ Try print out select metadata"""
+        try:
+            print("Scan: ", self.log_dict['Comment'], "\n",
+                  float(self.log_dict['Start']), "to ",
+                  float(self.log_dict['End']), "; ",
+                  float(self.log_dict['Increment']), "cm-1;",
+                  float(self.log_dict['Integration Time']), "s integration time")
+        except:
+            print("")
 
     def plot(self):
         """ Plots data, and use column headers, returns figure object plotted
