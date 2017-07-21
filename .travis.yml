@@ -5,6 +5,8 @@ python:
   - "3.5"
   - "3.6"
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install:
+  - pip install -r requirements.txt
+  - pip install pytest pytest-cov pandas
 # command to run tests
-script: py.test tests
+script: py.test --cov=spc tests
