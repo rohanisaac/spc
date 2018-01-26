@@ -575,6 +575,33 @@ class File:
                     dat += newline
         return dat
 
+    # Writes out data to a stream (significantly faster than appending to a string)
+    def stream_data_txt(self, stream, delimiter='\t', newline='\n'):
+        if self.fnsub == 1:
+            if self.dat_fmt.endswith('-xy'):
+                x = self.sub[0].x
+            else:
+                x = self.x
+            y = self.sub[0].y
+
+            for x1, y1 in zip(x, y):
+                stream.write('{}{}{}{}'.format(x1, delimiter, y1, newline))
+        else:
+            if not self.dat_fmt.endswith('-xy'):
+                # does not have separate x data
+                for i in range(len(self.x)):
+                    stream.write('{}'.format(self.x[i]))
+                    for s in self.sub:
+                        stream.write('{}{}'.format(delimiter, s.y[i]))
+                    stream.write(newline)
+            else:
+                # txyxy format, return one long xy file with subfiles
+                # separated by blank lines
+                for i in self.sub:
+                    for x1, y1 in zip(i.x, i.y):
+                        stream.write('{}{}{}{}'.format(x1, delimiter, y1, newline))
+                    stream.write(newline)
+
     def write_file(self, path, delimiter='\t', newline='\n'):
         """ Output x,y data to text file tab seperated
 
@@ -593,7 +620,7 @@ class File:
 
         """
         with open(path, 'w') as f:
-            f.write(self.data_txt(delimiter, newline))
+            self.stream_data_txt(f, delimiter, newline)
 
     def print_metadata(self):
         """ Print out select metadata"""
