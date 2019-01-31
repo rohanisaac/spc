@@ -236,7 +236,7 @@ class File:
                     if x.find(b'=') >= 0:
                         # stop it from breaking if there is more than 1 =
                         key, value = x.split(b'=')[:2]
-                        self.log_dict[key] = value
+                        self.log_dict[key.decode()] = value.decode()
                     else:
                         self.log_other.append(x)
 
@@ -623,12 +623,15 @@ class File:
             self.stream_data_txt(f, delimiter, newline)
 
     def print_metadata(self):
-        """ Print out select metadata"""
-        print("Scan: ", self.log_dict['Comment'], "\n",
-              float(self.log_dict['Start']), "to ",
-              float(self.log_dict['End']), "; ",
-              float(self.log_dict['Increment']), "cm-1;",
-              float(self.log_dict['Integration Time']), "s integration time")
+        """ Try print out select metadata"""
+        try:
+            print("Scan: ", self.log_dict['Comment'], "\n",
+                  float(self.log_dict['Start']), "to ",
+                  float(self.log_dict['End']), "; ",
+                  float(self.log_dict['Increment']), "cm-1;",
+                  float(self.log_dict['Integration Time']), "s integration time")
+        except:
+            print("")
 
     def plot(self):
         """ Plots data, and use column headers, returns figure object plotted
