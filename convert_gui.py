@@ -8,16 +8,18 @@ Only takes a single directory as input
 
 author: Rohan Isaac
 """
+# pylint: disable=too-many-instance-attributes, invalid-name
 
 from __future__ import division, absolute_import, unicode_literals, print_function
-from Tkinter import Tk, StringVar, DISABLED, NORMAL, END, W, E, N, S
+from Tkinter import Tk, StringVar, W, E, N, S
 from ttk import Frame, Label, Button, Radiobutton, Entry
 import tkFileDialog
-import spc
 import os
 
+import spc
 
-class ConvertSPC:
+
+class ConvertSPC(object):
     def __init__(self, master):
         self.master = master
         master.title("Convert SPC files")

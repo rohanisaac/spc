@@ -3,6 +3,7 @@ SubFile class: loads each subfile data segment into object
 
 author: Rohan Isaac
 """
+# pylint: disable=too-many-instance-attributes, invalid-name
 
 from __future__ import division, absolute_import, unicode_literals, print_function
 
@@ -12,7 +13,7 @@ import numpy as np
 from .global_fun import read_subheader
 
 
-class subFile:
+class SubFile(object):
     """
     Processes each subfile passed to it, extracts header information and data
     information and places them in data members
@@ -52,13 +53,10 @@ class subFile:
         # Choosing exponent
         # -----------------
         # choose local vs global exponent depending on tmulti
-        if not tmulti:
-            exp = fexp
-        else:
-            exp = self.subexp
+        exp = fexp if not tmulti else self.subexp
 
         # Make sure it is reasonable, if it out of range zero it
-        if not (-128 < exp <= 128):
+        if not -128 < exp <= 128:
             exp = 0
 
         # --------------------------
@@ -103,7 +101,7 @@ class subFile:
                 self.y = (2**(exp - 32)) * y_raw
 
 
-class subFileOld:
+class SubFileOld(object):
     """
     Processes each subfile passed to it, extracts header information and data
     information and places them in data members.
