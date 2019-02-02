@@ -161,4 +161,4 @@ Uses Tk which is generally included as part of Python standard library.
 
 ## References
 
-[1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014\. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>.
+[1] "Thermo Scientific SPC File Format." Thermo Fisher Scientific, Web. 20 July 2014\. <http://ftirsearch.com/features/converters/SPCFileFormat.htm>. ([archived](https://web.archive.org/web/20150131073636/http://ftirsearch.com:80/features/converters/spcfileformat.HTM))
