@@ -11,6 +11,28 @@ import os
 import spc
 
 
+def is_valid_spc_file(filepath):
+    """A function used to determine if the given path is an SPC file"""
+    return os.path.isfile(filepath) and filepath.lower().endswith('spc')
+
+def get_files_from_path(path):
+    """
+    A function used to generate a list of SPC files from the given path.
+    The function returns a list even for a single file path.
+    """
+    path = os.path.abspath(path)
+    if os.path.isfile(path) and is_valid_spc_file(path):
+        return [path]
+
+    elif os.path.isdir(path):
+        build_full_path = lambda f:
+        all_files = map(build_full_path, os.listdir(path))
+        #all_files = [os.path.join(path, f) for f in os.listdir(path)]
+        return [filepath for filepath in all_files if is_valid_spc_file(filepath)]
+
+    else:
+        return []
+
 def main():
     desc = 'Converts *.spc binary files to text using the spc module'
     parser = argparse.ArgumentParser(description=desc)
@@ -32,20 +54,16 @@ def main():
 
     flist = []
 
-    # add all files from input file name
+    # add all valid spc files from input file name
     for fn in args.filefolder:
-        ffn = os.path.abspath(fn)
-        # or directories
-        if os.path.isdir(ffn):
-            for f in os.listdir(ffn):
-                flist.append(os.path.join(ffn, f))
-        else:
-            flist.append(ffn)
+        flist += get_files_from_path(fn)
 
-    # process files
-    for fpath in flist:
-        if fpath.lower().endswith('spc'):
+    if len(flist) == 0:
+        print('No valid SPC file(s) found.')
 
+    else:
+        # process files
+        for fpath in flist:
             foutp = fpath[:-4] + exten
             try:
                 print(fpath, end=' ')
@@ -54,8 +72,6 @@ def main():
                 print('Converted')
             except:
                 print('Error processing %s' % fpath)
-        else:
-            print('%s not spc file, skipping' % fpath)
 
 if __name__ == '__main__':
     main()
