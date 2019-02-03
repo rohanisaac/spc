@@ -4,16 +4,17 @@ file
 
 author: Rohan Isaac
 """
+# pylint: disable=too-many-instance-attributes, invalid-name
 
 from __future__ import division, absolute_import, unicode_literals, print_function
 import struct
 import numpy as np
 
-from .sub import subFile, subFileOld
+from .sub import SubFile, SubFileOld
 from .global_fun import read_subheader, flag_bits
 
 
-class File:
+class File(object):
     """
     Starts loading the data from a .SPC spectral file using data from the
     header. Stores all the attributes of a spectral file:
@@ -166,10 +167,9 @@ class File:
                     # if global x data is given
                     x_dat_pos = self.head_siz
                     x_dat_end = self.head_siz + (4 * self.fnpts)
-                    self.x = np.array(
-                        [struct.unpack_from(
-                            'f', content[x_dat_pos:x_dat_end], 4 * i)[0]
-                            for i in range(0, self.fnpts)])
+                    content_to_unpack = content[x_dat_pos:x_dat_end]
+                    unpack = lambda i: struct.unpack_from('f', content_to_unpack, 4 * i)[0]
+                    self.x = np.array([unpack(i) for i in range(0, self.fnpts)])
                     sub_pos = x_dat_end
                 else:
                     # otherwise generate them
@@ -183,10 +183,11 @@ class File:
                 self.directory = True
                 # loop over entries in directory
                 for i in range(0, self.fnsub):
-                    ssfposn, ssfsize, ssftime = struct.unpack(
-                        '<iif'.encode('utf8'), content[self.fnpts + (i * 12):self.fnpts + ((i + 1) * 12)])
-                    # add sufile, load defaults for npts and exp
-                    self.sub.append(subFile(content[ssfposn:ssfposn + ssfsize], 0, 0, True, self.tsprec, self.tmulti))
+                    unpack_fmt = '<iif'.encode('utf8')
+                    unpack_content = content[self.fnpts + (i * 12):self.fnpts + ((i + 1) * 12)]
+                    ssfposn, ssfsize, ssftime = struct.unpack(unpack_fmt, unpack_content)
+                    # add subfile, load defaults for npts and exp
+                    self.sub.append(SubFile(content[ssfposn:ssfposn + ssfsize], 0, 0, True, self.tsprec, self.tmulti))
 
             else:
                 # don't have directory, for each subfile
@@ -205,7 +206,7 @@ class File:
 
                     sub_end = sub_pos + dat_siz
                     # read into object, add to list
-                    self.sub.append(subFile(content[sub_pos:sub_end],
+                    self.sub.append(SubFile(content[sub_pos:sub_end],
                                             self.fnpts, self.fexp, self.txyxys, self.tsprec, self.tmulti))
                     # update positions
                     sub_pos = sub_end
@@ -253,7 +254,7 @@ class File:
         elif self.fversn == b'\x4c':
             # new MSB 1st
             print("New MSB 1st, yet to be implemented")
-            pass  # To be implemented
+            # TODO To be implemented
 
         # --------------------------------------------
         # OLD FORMAT
@@ -347,7 +348,7 @@ class File:
 
                     # read into object, add to list
                     # send it pts since we have already figured that out
-                    self.sub.append(subFileOld(
+                    self.sub.append(SubFileOld(
                         content[sub_pos:sub_end], pts, self.oexp, self.txyxys))
                     # update next subfile postion, and index
                     sub_pos = sub_end
@@ -575,8 +576,10 @@ class File:
                     dat += newline
         return dat
 
-    # Writes out data to a stream (significantly faster than appending to a string)
     def stream_data_txt(self, stream, delimiter='\t', newline='\n'):
+        """Writes out data to a stream
+        (significantly faster than appending to a string)
+        """
         if self.fnsub == 1:
             if self.dat_fmt.endswith('-xy'):
                 x = self.sub[0].x
@@ -652,6 +655,15 @@ class File:
         plt.ylabel(self.ylabel)
         return plt.gcf()
 
+    @staticmethod
+    def version_character_to_string(char):
+        """Returns a string representation of the file version"""
+        ordinal = ord(char)
+        return "new LSB 1st" if ordinal == 0x4b else \
+               "new MSB 1st" if ordinal == 0x4c else \
+               "old format" if ordinal == 0x4d else \
+               "unknown version"
+
     def debug_info(self):
         """
         Interpret flags and header information to debug more about the file
@@ -683,16 +695,7 @@ class File:
 
         print('----\n')
         # spc format version
-        if self.fversn == chr(0x4b):
-            self.pr_versn = "new LSB 1st"
-        elif self.fversn == chr(0x4c):
-            self.pr_versn = "new MSB 1st"
-        elif self.fversn == chr(0x4d):
-            self.pr_versn = "old format"
-        else:
-            self.pr_versn = "unknown version"
-
-        print("Version:", self.pr_versn)
+        print("Version:", self.version_character_to_string(self.fversn))
 
         # subfiles
         if self.fnsub == 1:
