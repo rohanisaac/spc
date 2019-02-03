@@ -9,7 +9,7 @@ from __future__ import division, absolute_import, unicode_literals, print_functi
 import struct
 import numpy as np
 
-from .global_fun import read_subheader
+from .util import read_subheader
 
 
 class subFile:
@@ -26,6 +26,8 @@ class subFile:
     """
 
     def __init__(self, data, fnpts, fexp, txyxy, tsprec, tmulti):
+        # fixed header size, 32 bytes
+        y_dat_pos = 32
 
         # extract subheader info
         self.subflgs, \
@@ -38,16 +40,10 @@ class subFile:
             self.subscan, \
             self.subwlevel, \
             self.subresv \
-            = read_subheader(data[:32])
+            = read_subheader(data[:y_dat_pos])
 
-        # header is 32 bytes
-        y_dat_pos = 32
-
-        if txyxy:
-            # only reason to use subnpts if x data is here
-            pts = self.subnpts
-        else:
-            pts = fnpts
+        # only reason to use subnpts if x data is here
+        pts = self.subnpts if txyxy else fnpts
 
         # Choosing exponent
         # -----------------
@@ -118,7 +114,7 @@ class subFileOld:
     """
 
     def __init__(self, data, pts, fexp, txyxy):
-        # fixed header size
+        # fixed header size, 32 bytes
         y_dat_pos = 32
 
         # extract subheader info
@@ -192,3 +188,10 @@ class subFileOld:
         # if 1 subfile changed
         # if 8 if peak table should not be used
         # if 128 if subfile modified by arithmetic
+
+class subFileShimadzu:
+    """A "subFile" class for Shimadzu files
+    This is a dummy class, currently used only to maintain consistency
+    """
+    def __init__(self, y):
+        self.y = y
