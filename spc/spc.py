@@ -10,7 +10,7 @@ from __future__ import division, absolute_import, unicode_literals, print_functi
 import struct
 import numpy as np
 
-from .sub import subFile, subFileOld
+from .sub import subFile, subFileOld, subFileShimadzu
 from .util import read_subheader, flag_bits
 
 class FileFormat:
@@ -303,7 +303,7 @@ class NewFormatLSB(NewFormat):
         self.unpack_header(content)
         self.unpack_flag_bits()
 
-        # TODO use __repr__ instead?
+        # TODO use __str__ instead?
         print('{}({})'.format(self.dat_fmt, self.nsub))
 
         sub_pos = self.head_siz
@@ -483,8 +483,19 @@ class ShimadzuFormat(FileFormat):
             if raw_data[i:i + 8] != s_8:
                 break
         dat_siz = int(dat_len / 8)
+
+        self.dat_fmt = 'x-y'
+        self.nsub = 1
+
         self.y = struct.unpack(('<' + dat_siz * 'd').encode('utf8'), raw_data[:dat_len])
         self.x = struct.unpack(('<' + dat_siz * 'd').encode('utf8'), raw_data[i:i + dat_len])
+
+        self.ylabel = ''
+        self.xlabel = ''
+
+        # creating a `sub` member to maintain consistency
+        self.sub = []
+        self.sub.append(subFileShimadzu(self.y))
 
 class File:
     """
@@ -516,7 +527,6 @@ class File:
 
         self.length = len(content)
         # extract first two bytes to determine file type version
-        # TODO remove self.tflg
         self.tflg, self.versn = struct.unpack('<cc'.encode('utf8'), content[:2])
 
         # --------------------------------------------
@@ -545,6 +555,7 @@ class File:
         # --------------------------------------------
         elif self.versn == b'\xcf':
             self.format = ShimadzuFormat(content)
+            self.content = content
 
         else:
             print("File type %s not supported yet. Please add issue. "
@@ -605,7 +616,7 @@ class File:
                 x = self.format.sub[0].x
             else:
                 x = self.format.x
-            y = self.sub[0].y
+            y = self.format.sub[0].y
 
             for x1, y1 in zip(x, y):
                 stream.write('{}{}{}{}'.format(x1, delimiter, y1, newline))
