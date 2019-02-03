@@ -9,7 +9,7 @@ from __future__ import division, absolute_import, unicode_literals, print_functi
 import struct
 import numpy as np
 
-from .global_fun import read_subheader
+from .util import read_subheader
 
 
 class subFile:

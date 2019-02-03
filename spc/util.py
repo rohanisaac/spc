@@ -3,13 +3,14 @@ Global functions, available to all classes
 
 author: Rohan Isaac
 """
+
 from __future__ import division, absolute_import, unicode_literals, print_function
 import struct
+
 
 # ------------------------------------------------------------------------
 # Process subfile data
 # ------------------------------------------------------------------------
-
 
 def read_subheader(subheader):
     """
@@ -44,14 +45,13 @@ def read_subheader(subheader):
 
     return item_cpy
 
+
 # ------------------------------------------------------------------------
 # Decode a character to boolean array
 # ------------------------------------------------------------------------
 
-
 def flag_bits(n):
     """Return the bits of a byte as a boolean array:
-
     n (charater):
         8-bit character passed
 
