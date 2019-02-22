@@ -511,22 +511,22 @@ class File:
     def set_exp_type(self):
         """ Sets the experiment type """
 
-        fexper_op = ["General SPC",
-                     "Gas Chromatogram",
-                     "General Chromatogram",
-                     "HPLC Chromatogram",
-                     "FT-IR, FT-NIR, FT-Raman Spectrum or Igram",
-                     "NIR Spectrum",
-                     "UV-VIS Spectrum",
-                     "X-ray Diffraction Spectrum",
-                     "Mass Spectrum ",
-                     "NMR Spectrum or FID",
-                     "Raman Spectrum",
-                     "Fluorescence Spectrum",
-                     "Atomic Spectrum",
-                     "Chromatography Diode Array Spectra"]
+        fexper_op = {0: "General SPC",
+                     1: "Gas Chromatogram",
+                     2: "General Chromatogram",
+                     3: "HPLC Chromatogram",
+                     4: "FT-IR, FT-NIR, FT-Raman Spectrum or Igram",
+                     5: "NIR Spectrum",
+                     6: "UV-VIS Spectrum",
+                     8: "X-ray Diffraction Spectrum",
+                     9: "Mass Spectrum ",
+                     10: "NMR Spectrum or FID",
+                     11: "Raman Spectrum",
+                     12: "Fluorescence Spectrum",
+                     13: "Atomic Spectrum",
+                     14: "Chromatography Diode Array Spectra"}
 
-        self.exp_type = fexper_op[self.fexper]
+        self.exp_type = fexper_op.get(self.fexper, "Not defined")
 
     # ------------------------------------------------------------------------
     # output
