@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 
+import os
+
 from distutils.core import setup
 
-import spc
+ver_file = os.path.join('spc', '_version.py')
+with open(ver_file) as f:
+    exec(f.read())
 
 setup(name='spc',
-      version=spc.__version__,
-      description=spc.__doc__,
-      author=spc.__author__,
-      author_email=spc.__author_email__,
+      version=__version__,
+      description=__doc__,
+      author=__author__,
+      author_email=__author_email__,
       url='https://github.com/rohanisaac/spc',
       packages=['spc'],
       install_requires=['numpy'],
