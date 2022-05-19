@@ -2,13 +2,16 @@
 
 from distutils.core import setup
 
-import spc
+__author__ = "Rohan Isaac"
+__author_email__ = "rohan_isaac@yahoo.com"
+__version__ = "0.4.0"
+__license__ = "GPLv3"
 
 setup(name='spc',
-      version=spc.__version__,
-      description=spc.__doc__,
-      author=spc.__author__,
-      author_email=spc.__author_email__,
+      version=__version__,
+      description=__doc__,
+      author=__author__,
+      author_email=__author_email__,
       url='https://github.com/rohanisaac/spc',
       packages=['spc'],
       install_requires=['numpy'],
