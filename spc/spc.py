@@ -49,7 +49,18 @@ class File:
     # CONSTRUCTOR
     # ------------------------------------------------------------------------
 
-    def __init__(self, filename):
+    def __init__(self, filename, verbose= True):
+        
+         # specify if the format string should be printed
+        if verbose:
+            def verboseprint(*args):
+                # Print each argument separately so caller doesn't need to
+                # stuff everything to be printed into a single string
+                for arg in args:
+                   print(arg)
+        else:   
+            verboseprint = lambda *a: None      # do-nothing function
+        
         # load entire into memory temporarly
         with open(filename, "rb") as fin:
             content = fin.read()
@@ -156,7 +167,7 @@ class File:
                 # no x values are given, but they can be generated
                 self.dat_fmt = 'gx-y'
 
-            print('{}({})'.format(self.dat_fmt, self.fnsub))
+            verboseprint('{}({})'.format(self.dat_fmt, self.fnsub))
 
             sub_pos = self.head_siz
 
@@ -252,7 +263,7 @@ class File:
         # --------------------------------------------
         elif self.fversn == b'\x4c':
             # new MSB 1st
-            print("New MSB 1st, yet to be implemented")
+            verboseprint("New MSB 1st, yet to be implemented")
             pass  # To be implemented
 
         # --------------------------------------------
@@ -360,7 +371,7 @@ class File:
 
             # assuming it can't have separate x values
             self.dat_fmt = 'gx-y'
-            print('{}({})'.format(self.dat_fmt, self.fnsub))
+            verboseprint('{}({})'.format(self.dat_fmt, self.fnsub))
 
             self.fxtype = ord(self.fxtype)
             self.fytype = ord(self.fytype)
@@ -372,7 +383,7 @@ class File:
         # SHIMADZU
         # --------------------------------------------
         elif self.fversn == b'\xcf':
-            print("Highly experimental format, may not work ")
+            verboseprint("Highly experimental format, may not work ")
             raw_data = content[10240:]  # data starts here (maybe every time)
             # spacing between y and x data is atleast 0 bytes
             s_32 = chr(int('0', 2)) * 32
@@ -387,7 +398,7 @@ class File:
             self.x = struct.unpack(('<' + dat_siz * 'd').encode('utf8'), raw_data[i:i + dat_len])
 
         else:
-            print("File type %s not supported yet. Please add issue. "
+            verboseprint("File type %s not supported yet. Please add issue. "
                   % hex(ord(self.fversn)))
             self.content = content
 
